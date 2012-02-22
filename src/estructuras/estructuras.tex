@@ -1,0 +1,313 @@
+
+\chapter{Estructuras de control}
+
+A lo largo de este capítulo, vamos a ir viendo las distintas estructuras de
+control que posee Go. Antes de comenzar, hay que realizar un apunte,
+concerniente especialmente a las sentencias \textit{if}, \textit{for}
+y \textit{switch}:
+
+\begin{itemize} \item Son similares a las declaraciones homónimas en C, pero
+poseen diferencias significativas.  \item Como ya se ha apuntado, no utilizan
+paréntesis y las llaves son obligatorias.  \item Las tres sentencias admiten
+instrucciones de inicialización (operador ':=').  \end{itemize}
+
+\section{Sentencia condicional: if\label{if}}
+
+La sentencia condicional \textit{if} permite ejecutar una rama de código u otra
+dependiendo de la evaluación de la condición.\\
+
+Esta sentencia, es similar a la existente en otros lenguajes, pero tiene el
+problema de que el \textit{else} tiene que estar en la misma línea que la llave
+de cierre del \textit{if}.\\
+
+Además admite instrucciones de inicialización, separadas por un punto y coma.
+Esto es muy útil con funciones que devuelvan múltiples valores.\\
+
+Si una sentencia condicional \textit{if} no tiene ninguna condición, significa
+\textit{true}, lo que en este contexto no es muy útil pero sí que lo es para
+\textit{for} o \textit{switch}.\\
+
+Veámoslo con un ejemplo:
+
+%\begin{program}
+\begin{verbatim} if x < 5 { f() } if x < 5 { f() } else if x == 5 { g() }
+    
+	if v := f(); v < 10 { fmt.Printf("\%d es menor que 10\n", v) } else
+	{ fmt.Printf("\%d no es menor que 10", v) }
+    
+	// Se recogen los valores, y se comprueba // que err sea un valor no nulo
+    
+	if n, err = fd.Write(buffer); err != nil { ... } \end{verbatim}
+%\caption{Sentencias condicionales if correctas} \end{program}
+
+%\begin{program}
+\begin{verbatim} // El else debe estar en la misma línea que // la llave de
+cierre del if if v := f(); v < 10 { fmt.Printf("\%d es menor que 10\n", v)
+} else { fmt.Printf("\%d no es menor que 10", v) } \end{verbatim}
+%\caption{Sentencia condicionales if incorrectas} \end{program}
+
+\section{Sentencia condicional: switch}
+
+El \textit{switch} tiene la misma apariencia que en la mayoría de los lenguajes
+y, aunque es en apariencia similar al de C, tiene varias diferencias:
+
+\begin{itemize} \item Las expresiones no tienen por qué ser constantes ni
+siquiera números.  \item Las condiciones no se evalúan en cascada
+automáticamente.  \item Para conseguir evaluación en cascada, se puede usar al
+final de cada \textit{case} la palabra reservada \textit{fallthrough}
+finalizando la sentencia con un punto y coma.  \item Múltiples casos que
+ejecuten una misma secuencia de instrucciones, pueden ser separados por comas.
+\end{itemize}
+
+%\begin{program}
+\begin{verbatim} switch count%7 { case 4, 5, 6: error() case 3: a *= v;
+fallthrough case 2: a *= v; fallthrough case 1: a *= v; fallthrough case 0:
+return a*v } \end{verbatim}
+%\caption{Sentencia condicional switch - Ejemplo de fallthrough} \end{program}
+
+El \textit{switch} de Go es más potente que el de C. Además de que las
+expresiones pueden ser de cualquier tipo, sabemos que la ausencia de la misma
+significa \textit{true}. Así, podemos conseguir una cadena
+\textit{if}$-$\textit{else} con un switch. Veamos otro ejemplo:
+
+%\begin{program}
+\begin{verbatim} // Forma habitual switch a { case 0: fmt.Printf("0") default:
+fmt.Printf("No es cero") }
+    
+    
+	// If-else a, b := x[i], y[j]; switch { case a < b: return -1 case a == b:
+	return 0 case a > b: return 1 }
+    
+	// Este último switch sería equivalente a switch a, b := x[i], y[j]; { ...
+	} \end{verbatim}
+%\caption{Sentencia condicional switch} \end{program}
+
+\section{Bucles: for}
+
+Un bucle es una sentencia de los lenguajes de programación que permite ejecutar
+un mismo grupo de instrucciones \textit{n} veces de forma consecutiva.\\
+
+En Go sólo tenemos un tipo de bucles, a diferencia de otros lenguajes que suelen
+poseer varios. Todo lo que implique un bucle, en Go se ejecuta con una
+instrucción \textit{for}. Una de las cosas más llamativas de los bucles en Go,
+es la posibilidad de usar asignaciones a varias variables, y hacer un bucle
+doble en una sola instrucción. Veamos algunos ejemplos:
+
+%\begin{program}
+\begin{verbatim} // Forma clásica for i := 0; i < 10; i++ { // ejecutamos
+instrucciones }
+    
+	// La falta de condición implica true (bucle infinito) for
+	; ; { fmt.Printf("Bucle infinito") } for { fmt.Printf("Bucle infinito, sin
+	poner ;") }
+    
+	// Equivalente al bucle while for a > 5 { fmt.Printf("Bucle while\n") a--
+	} \end{verbatim}
+%\caption{Bucles: for} \end{program}
+
+%\begin{program}
+\begin{verbatim} // Bucle doble for i,j := 0,N; i < j; i,j = i+1,j-1 { //
+ejecutamos instrucciones }
+    
+	// Sería equivalente a for i := 0; i < N/2; i++{ for j := N; j > i; j--{ //
+	ejecutamos instrucciones } } \end{verbatim}
+%\caption{Bucles: for multivariable} \end{program}
+
+\section{Instrucciones break y continue}
+
+Las instrucciones \textit{break} y \textit{continue} nos permiten controlar la
+ejecución de un bucle o una sentencia condicional, parándolo en un determinado
+momento, saliendo del mismo y continuando la ejecución del programa, o saltando
+a la siguiente iteración del bucle, respectivamente.\\
+
+Funcionan de la misma forma que en C y se puede especificar una etiqueta para
+que afecte a una estructura externa a donde es llamado. Como se podría pensar al
+haber una etiqueta, sí, existe la sentencia \textit{goto}.
+
+%\begin{program}
+\begin{verbatim} Bucle: for i := 0; i < 10; i++ { switch f(i) { case 0, 1, 2:
+break Loop } g(i) } \end{verbatim}
+%\caption{Ejemplo de break} \end{program}
+
+\section{Funciones\label{funciones}}
+
+Las funciones nos permiten ejecutar un fragmento de código que realiza una
+acción específica, de forma separada de un programa, que es donde se integra.\\
+
+La principal ventaja del uso de funciones es la reutilización de código. Si
+vamos a realizar la misma tarea un gran número de veces, nos evitamos la
+duplicidad del código, y así la tarea de mantenimiento es mucho más sencilla.\\
+
+Las funciones en Go comienzan con la palabra reservada \textit{func}. Después,
+nos encontramos el nombre de la función, y una lista de parámetros entre
+paréntesis. El valor devuelto por una función, si es que devuelve algún valor,
+se encuentra después de los parámetros. Finalmente, utiliza la instrucción
+\textit{return} para devolver un valor del tipo indicado.\\
+
+Si la función devuelve varios valores, en la declaración de la función los tipos
+de los valores devueltos van en una lista separada por comas entre paréntesis.
+
+%\begin{program}
+\begin{verbatim} func square(f float) float { return f*f }
+    
+	// Función con múltiples valores devueltos func MySqrt(f float) (float,
+	bool) { if f >= 0 { return math.Sqrt(f), true } return 0, false
+	}    \end{verbatim}
+%\caption{Ejemplos de funciones} \end{program}
+
+Los parámetros devueltos por una función son, en realidad, variables que pueden
+ser usadas si se las otorga un nombre en la declaración. Además, están por
+defecto inicializadas a ''cero'' (0, 0.0, false... dependiendo del tipo de la
+variable).
+
+%\begin{program}
+\begin{verbatim} func MySqrt(f float) (v float, ok bool) { if f >= 0 { v, ok
+= math.Sqrt(f), true } else { v, ok = 0, false } return v, ok }    
+    
+	// Función con múltiples valores devueltos func MySqrt(f float) (v float, ok
+	bool) { if f >= 0 { v, ok = math.Sqrt(f), true } return v, ok
+	}    \end{verbatim}
+%\caption{Ejemplos de funciones con variables de retorno} \end{program}
+
+Finalmente, un \textit{return} vacío devuelve el actual valor de las variables
+de retorno. Vamos a ver dos ejemplos más de la función \textit{MySqrt}:
+
+%\begin{program}
+\begin{verbatim} func MySqrt(f float) (v float, ok bool) { if f >= 0 { v, ok
+= math.Sqrt(f), true } return           // Debe ser explícito }    
+    
+	// Función con múltiples valores devueltos func MySqrt(f float) (v float, ok
+	bool) { if f < 0 { return       // Caso de error } return math.Sqrt(f), true
+	}    \end{verbatim}
+%\caption{Ejemplos de funciones con return vacío} \end{program}
+
+\section{¿Y qué hay del 0?}
+
+En esta sección vamos a tratar el tema de inicialización de las variables a un
+valor estándar ``cero''. En Go, por temas de seguridad, toda la memoria
+utilizada es previamente inicializada. Todas las variables son inicializadas con
+su valor asignado o con un valor ``cero'' en el momento de su declaración. En
+caso de inicializar una variable con el valor ``cero", se usará el valor tomado
+como ``cero'' para su tipo concreto.\\
+
+Como los valores dependerán del tipo, veamos cuáles son esos posibles valores:
+
+\begin{itemize} \item \textbf{int:} 0 \item \textbf{float:} 0.0 \item
+\textbf{bool:} false \item \textbf{string:} ``'' \item \textbf{punteros:} nil
+\item \textbf{struct:} valores ``cero'' de todos sus atributos.  \end{itemize}
+
+Por ejemplo, el siguiente bucle imprimirá 0, 0, 0, 0, 0. Esto se debe a que la
+variable v se declara en cada pasada del bucle, con lo que se reinicializa.
+
+%\begin{program}
+\begin{verbatim} for i := 0; i < 5; i++ { var v int fmt.Printf("\%d\n", v)
+v = 5 } \end{verbatim}
+%\caption{Ejemplos de valores ``cero"} \end{program}
+
+\section{Defer}
+
+La instrucción \textit{defer} es una instrucción poco común en lenguajes de
+programación, pero que puede resultar muy útil. En el caso de Go, la instrucción
+\textit{defer} ejecuta una determinada función o método cuando la función que la
+engloba termina su ejecución.\\
+
+La evaluación de los argumentos de \textit{defer} se realiza en el momento de la
+llamada a dicha instrucción, mientras que la llamada a la función no ocurre
+hasta que se ejecuta el \textit{return} correspondiente.\\
+
+Es una instrucción muy útil para cerrar descriptores de ficheros o desbloquear
+mutex. Veamos un pequeño ejemplo, en el que cerraremos un fichero al terminar la
+ejecución de la función.
+
+%\begin{program}
+\begin{verbatim} func data(name string) string { f := os.Open(name, os.O_RDONLY,
+0) defer f.Close() contenido := io.ReadAll(f) return contenido } \end{verbatim}
+%\caption{Ejemplo de defer} \end{program}
+
+Cada \textit{defer} se corresponde con una llamada a una única función. Cada vez
+que se ejecuta un \textit{defer} una llamada a la función que deba ser ejecutada
+se encola en una pila LIFO, de tal forma que la última llamada será la primera
+en ejecutarse. Con un bucle, podemos cerrar todos los ficheros o desbloquear los
+mutex de un golpe al final. Veamos un ejemplo, que en este caso imprimirá los
+números 4, 3, 2, 1 y 0 en dicho orden.
+
+%\begin{program}
+\begin{verbatim} func f(){ for i := 0; i < 5; i++ { defer fmt.Printf("\%d", i)
+} } \end{verbatim}
+%\caption{Ejemplos de varias ejecuciones de funciones con defer} \end{program}
+
+Veamos un ejemplo más completo para entender correctamente el funcionamiento de
+\textit{defer}. Para ello, vamos a seguir la traza de ejecución de nuestro
+programa, imprimiendo la secuencia de funciones que son llamadas.
+
+%\begin{program}
+\begin{verbatim} func trace (s string) { fmt.Print("entrando en: ", s, "\n") }
+
+	func untrace (s string) { fmt.Print("saliendo de: ", s, "\n") }
+
+	func a() { trace("a") defer untrace("a") fmt.Print("estoy en a\n") }
+
+	func b() { trace("b") defer untrace("b") fmt.Print("estoy en b\n") a() }
+
+	func main() { b() } \end{verbatim}
+%\caption{Siguiendo la traza de ejecución con defer: I} \end{program}
+
+El programa anterior, imprimirá los siguientes valores por pantalla:
+
+\begin{verbatim} entrando en: b estoy en b entrando en: a estoy en a saliendo
+de: a saliendo de: b \end{verbatim}
+
+Veamos ahora una versión más optimizada del mismo programa, que imprimirá
+exactamente los mismos valores por pantalla. En este ejemplo se puede observar
+que los argumentos de \textit{defer} son evaluados en el momento, pero que la
+ejecución de la función no se realiza hasta finalizar su función ``padre''.
+\clearpage
+%\begin{program}
+\begin{verbatim} func trace (s string) string { fmt.Print("entrando en: ", s,
+"\n") return s }
+
+	func un(s string) { fmt.Print("saliendo de: ", s, "\n") }
+
+	func a() { defer un(trace("a")) fmt.Print("estoy en a\n") }
+
+	func b() { defer un(trace("b")) fmt.Print("estoy en b\n") a() }
+
+	func main() { b() } \end{verbatim}
+%\caption{Siguiendo la traza de ejecución con defer: II} \end{program}
+
+\section{Funciones anónimas, $\lambda$-programación y closures}
+
+Los tres conceptos están muy relacionados entre sí. Las funciones anónimas y la
+$\lambda$-programación se refieren al mismo concepto, mientras que las
+\textit{closures} son un uso concreto de las funciones anónimas.
+
+\begin{description} \item[Funciones anónimas o $\lambda$-programación] Se basa
+en utilizar funciones que están definidas en tiempo de ejecución. Este tipo de
+funciones, no tienen nombres por sí mismas y se ejecutan en el contexto en el
+que son declaradas. A menudo, son referenciadas por variable para poder ser
+ejecutadas en otro contexto. Son típicas de lenguajes funcionales como, por
+ejemplo, Haskell.  \item[Closures] Se pueden definir las \textit{closures} como
+funciones anónimas declaradas en el ámbito de otra función y que pueden hacer
+referencia a las variables de su función contenedora incluso después de que esta
+se haya terminado de ejecutar.  \end{description}
+
+Dado que son dos conceptos bastante abstractos, lo mejor es que veamos un
+ejemplo de cada uno de ellos.
+
+%\begin{program}
+\begin{verbatim} func f(){ for i := 0; i < 10; i++{ g := func(i int)
+{ fmt.Printf("\%d", i) } g(i) } } \end{verbatim}
+%\caption{Funciones anónimas o $\lambda$-programación} \end{program}
+
+%\begin{program}
+\begin{verbatim} func sumador(){ var x int return func(delta int) int{ x +=
+delta return x } }
+    
+	var f = sumador()    // f es una función ahora.  fmt.Printf(f(1))
+	fmt.Printf(f(20)) fmt.Printf(f(300)) \end{verbatim}
+%\caption{Ejemplo de closures} \end{program}
+
+El anterior ejemplo, imprimirá los valores 1, 21 y 321, ya que irá acumulando
+los valores en la variable \textit{x} de la función \textit{f}.
+
+\clearpage \thispagestyle{empty} \ \\ \newpage

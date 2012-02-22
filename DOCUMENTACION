@@ -1,0 +1,199 @@
+Fichero de documentación del manual. Contenido que hay que añadir y modificar,
+así como estilos a seguir, anotaciones, comentarios sobre el código fuente de
+los tex, índice de contenidos...
+
+I. Índice de contenidos
+
+Leyenda: * Contenido antiguo que se mantiene
+         - Contenido antiguo que se elimina
+		 + Contenido nuevo
+		 M Contenido que se mueve a otro capítulo o cambia de nombre.
+
+	* 1. Introducción
+		* 1.1. ¿Qué es Go?
+		* 1.2. ¿Quién lo desarrolla?
+		* 1.3. ¿Por qué crear un nuevo lenguaje?
+		* 1.4. Recursos
+			* 1.4.1. golang.org
+			* 1.4.2. #go-nuts
+			* 1.4.3. Lista de correo Go-Nuts
+			* 1.4.4. Gestor de errores
+			* 1.4.5. http://go-lang.cat-v.org/
+			+ Lista de correo de desarrolladores
+			+ Twitter
+		* 1.5. ¿Cómo instalarlo?
+			+ Sistemas UNIX
+			+ Sistemas Windows
+		M 1.6. Compiladores
+			* 1.6.1. gccgo
+			* 1.6.2. 6g/8g
+		* 1.7. Otras Herramientas
+			* 1.7.1. Godoc
+			* 1.7.2. Gofmt
+			+ Goinstall
+			+ Cgo
+			+ Gofix
+			+ Gofmt
+			+ gomake
+			+ gotest
+		* 1.8. Manteniéndose al día
+			+ Stable vs. Release vs. Weekly vs. Tip
+			+ Sistemas UNIX
+			+ Sistemas Windows
+	* 2. Características y tipos básicos
+		M 2.1. Nuestro primer programa: ¡Hola Mundo!
+			+ Ejercicio: Compila y ejecuta ¡Hola Mundo!
+		* 2.2. Garbage Collector
+		* 2.3. Las bases del lenguaje
+		* 2.4. Comentarios
+		* 2.5. Literales
+			+ Ejercicio
+		* 2.6. Vistazo rápido de la sintaxis
+		+ Palabras reservadas
+		* 2.7. Tipos
+			* 2.7.1. Números
+			* 2.7.2. Bool
+			* 2.7.3. String
+		* 2.8. Operadores
+			* 2.8.1. Diferencias con C
+			* 2.8.2. Ejemplos
+		* 2.9. Conversiones
+		* 2.10. Valores constantes y números ideales
+		* 2.11. Declaraciones
+			* 2.11.1. Variables
+			* 2.11.2. Constantes
+			* 2.11.3. Tipos
+			* 2.11.4. Operador new vs función make
+			* 2.11.5. Asignaciones
+		+ Ejercicios
+	* 3. Estructuras de control
+		* 3.1. Sentencia condicional: if
+			+ Ejercicio
+		* 3.2. Sentencia condicional: switch
+			+ Ejercicio
+		* 3.3. Bucles: for
+			+ Ejercicio
+		* 3.4. Instrucciones break y continue
+		* 3.5. Funciones
+			+ Ejercicio
+		M 3.6. Valores nulos
+		+ Funciones empotradas (built-in)
+		* 3.7. Defer
+			+ Ejercicio
+		* 3.8. Funciones anónimas, lambda-programación y closures.
+			+ Ejercicio
+		+ Ejercicios
+	* 4. Estructuración de programas
+		* 4.1. Paquetes y estructura de los fichero fuente
+		* 4.2. Ámbito de una variable
+			+ Ejercicio
+		* 4.3. Inicialización
+		M 4.4. Realizando tests al paquete
+			+ Ejercicio
+		+ Documentando un paquete
+		+ Manejo de excepciones - Panic y recover
+			+ Ejercicio
+		M 4.5. Paquetes
+			* 4.5.1. Fmt
+			* 4.5.2. Os
+			- 4.5.3. Os - Entrada / Salida en ficheros
+			* 4.5.4. Otras librerías
+			+ Crypto
+			+ exp
+			+ flag
+			+ go
+			+ gob
+			+ http
+			+ image
+			+ io
+			+ json
+			+ net
+			+ path
+			+ regexp
+			+ testing
+		+ Ejercicios
+	M 5. Tipos de datos compuestos - NOTA.- Mover a antes del capítulo 4
+		* 5.1. Arrays
+			+ Ejercicios
+		* 5.2. Slices
+			+ Ejercicios
+		* 5.3. Maps
+			* 5.3.1. Indexando un map
+			* 5.3.2. Comprobando la existencia de una clave
+			* 5.3.3. Borrando una entrada
+			* 5.3.4. Bucle for y range
+			+ Ejercicios
+		* 5.4. Structs
+			* 5.4.1. Exportación de tipos
+			* 5.4.2. Atributos anónimos
+			* 5.4.3. Conflictos
+			+ Ejercicios
+	+ Manejo de memoria, definición de tipos propios, conversiones.
+	* 6. Orientación a Objetos
+		* 6.1. Métodos
+			* 6.1.1. Métodos para structs
+			* 6.1.2. Invocación de métodos
+			* 6.1.3. Reglas para el uso de métodos
+			* 6.1.4. Punteros y valores en los métodos
+			* 6.1.5. Atributos anónimos en los métodos
+			* 6.1.6. Métodos con otros tipos
+			* 6.1.7. El método String()
+			* 6.1.8. Visibilidad de atributos y métodos
+			+ Ejercicios
+		* 6.2. Interfaces
+			* 6.2.1. Introducción sobre interfaces
+			* 6.2.2. Definición de interfaz
+			* 6.2.3. El tipo interface
+			* 6.2.4. El valor interfaz
+			M 6.2.5. Características de los interfaces
+			* 6.2.6. Ejemplo: io.Writer
+			* 6.2.7. Comparación con C++
+			* 6.2.8. Contenedores y la interfaz vacía
+			* 6.2.9. Asertos de tipos
+			M 6.2.10. Conversión entre interfaces
+			M 6.2.11. Identificación de interfaces con asertos
+			* 6.2.12. El paquete reflect
+			+ Ejercicios
+	* 7. Concurrencia y comunicación
+		* 7.1. Goroutines
+			* 7.1.1. Definición
+			* 7.1.2. Cómo crear una Goroutine
+			M 7.1.3. Características de las Goroutines
+			* 7.1.4. Pila de una Goroutine
+			* 7.1.5. Scheduling
+			+ Ejercicios
+		* 7.2. Channels
+			* 7.2.1. El tipo channel
+			* 7.2.2. El operador <-
+			* 7.2.3. Semántica de canales
+			* 7.2.4. Ejemplo de comunicación
+			* 7.2.5. Funciones que devuelven canales
+			* 7.2.6. Rangos y canales
+			* 7.2.7. Cerrando un canal
+			* 7.2.8. Iteradores
+			* 7.2.9. Direccionalidad de un canal
+			* 7.2.10. Canales síncronos
+			* 7.2.11. Canales asíncronos
+			* 7.2.12. Probando la comunicación
+			+ Canales de sólo lectura, de sólo escritura y bidireccionales
+		* 7.3. Select
+			* 7.3.1. Definición
+			* 7.3.2. Semántica de select
+			* 7.3.3. Ejemplo: Generador aleatorio de bits
+			+ Ejercicios
+		* 7.4. Multiplexación
+			* 7.4.1. El servidor
+			* 7.4.2. El cliente
+			* 7.4.3. La contrapartida
+			+ Ejercicios
+		* 7.5. Problemas de concurrencia
+	* 8. Modelo de Memoria de Go
+		* 8.1. Lo que primero ocurre
+		* 8.2. Sincronización
+			* 8.2.1. Inicialización
+			* 8.2.2. Creación de Goroutines
+			* 8.2.3. Comunicación mediante canales
+		* 8.3. Cerrojos - Locks
+		* 8.4. El paquete once
+		* 8.5. Sincronización incorrecta
+

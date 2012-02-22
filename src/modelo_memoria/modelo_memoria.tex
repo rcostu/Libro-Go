@@ -1,0 +1,267 @@
+
+\chapter{Modelo de Memoria de Go}
+
+Este capítulo contiene información que afecta específicamente a la programación
+concurrente en Go. Especialmente se centra en cómo afectan las operaciones a las
+lecturas de datos de las variables en una goroutine de forma que se observe el
+valor correcto producido por una escritura de la misma variable en otra
+goroutine.
+
+\section{Lo que primero ocurre}
+
+En el ámbito de una única goroutine, las lecturas y escrituras deben comportarse
+como si fueran ejecutadas en el orden especificado por el programa. Esto es, los
+compiladores y procesadores pueden reordenar las lecturas y escrituras
+ejecutadas en el ámbito de una única goroutine sólo cuando la reordenación no
+cambia el comportamiento en esa goroutine definido por la especificación del
+lenguaje. Debido a esta reordenación, el orden de ejecución observado por una
+goroutine puede diferir del orden percibido por otra. Por ejemplo, si una
+goroutine ejecuta \textit{a = 1; b=1;}, otra puede observar el valor actualizado
+de \textit{b} antes que el de \textit{a}.\\
+
+Para especificar los requisitos de lecturas y escrituras, definimos ''lo que
+primero ocurre'', un orden parcial en la ejecución de operaciones de memoria en
+un programa escrito en Go. Si el evento \textit{e$_1$} ocurre antes que otro
+\textit{e$_2$}, entonces decimos que \textit{e$_2$} ocurre después que
+\textit{e$_1$}. También, si \textit{e$_1$} no ocurre antes que \textit{e$_2$}
+y no ocurre después que \textit{e$_2$}, entonces decimos que \textit{e$_1$}
+y \textit{e$_2$} ocurren concurrentemente.\\
+
+En una única goroutine, el orden de ''lo que primero ocurre'' es el orden
+expresado en el programa.\\
+
+La lectura \textit{r} de una variable \textit{v} puede observar una escritura
+\textit{w} en \textit{v} si las siguientes dos afirmaciones ocurren:
+
+\begin{enumerate} \item \textit{w} ocurre antes que \textit{r}.  \item No hay
+otra escritura \textit{w} en \textit{v} que ocurra después de \textit{w} pero
+antes que \textit{r}.  \end{enumerate}
+
+Para garantizar que una lectura \textit{r} de una variable \textit{v} observa un
+valor particular escrito por \textit{w} en \textit{v}, hay que asegurar que
+\textit{w} es la única escritura que \textit{r} puede observar. Esto es,
+\textit{r} está garantizado que lee la escritura \textit{w} si las siguientes
+afirmaciones se cumplen:
+
+\begin{enumerate} \item \textit{w} ocurre antes que \textit{r}.  \item Cualquier
+otra escritura en la variable compartida \textit{v} ocurre o bien antes que
+\textit{w} o bien después que \textit{r}.  \end{enumerate}
+
+Este par de condiciones es más estricto que el primero; requiere que no haya
+otras escrituras ocurriendo concurrentemente con \textit{w} o con \textit{r}.\\
+
+En una única goroutine no existe concurrencia, así pues las dos definiciones son
+equivalentes: una lectura \textit{r} observa el valor escrito por la escritura
+más reciente \textit{w} en \textit{v}. Cuando varias goroutines acceden a una
+variable compartida \textit{v}, deben utilizar eventos de sincronización para
+establecer qué es lo que ocurre primero y así asegurar que las lecturas observan
+los valores correctos de las variables compartidas.\\
+
+La inicialización de una variable \textit{v} con el valor ''cero'' para el tipo
+de \textit{v} se comporta como se ha definido en este modelo de memoria..\\
+
+Las lecturas y escrituras de valores que ocupan más que el ancho de palabra de
+la máquina, se comportan como varias operaciones del ancho de la palabra de
+forma no especificada.
+
+\section{Sincronización}
+
+La sincronización entre las distintas goroutines es básica para que el programa
+en cuestión pueda ejecutar correctamente y dar resultados satisfactorios.
+
+	\subsection{Inicialización}
+	
+	La inicialización del programa se ejecuta en una única goroutine y las
+	nuevas goroutines creadas durante la inicialización no comienzan su
+	ejecución hasta que la inicialización termina.\\
+	
+	Si un paquete \textit{p} importa un paquete \textit{q}, la inicialización de
+	las funciones de \textit{q} terminan antes de que empiece la inicialización
+	de cualquiera de las de \textit{p}.\\
+	
+	La ejecución de la función \textit{main.main} comienza después de que todas
+	las funciones \textit{init} hayan terminado.\\
+	
+	La ejecución de todas las goroutines creadas durante la ejecución de las
+	funciones \textit{init} ocurre después de que todas las demás funciones
+	\textit{init} hayan terminado.\\ \clearpage \subsection{Creación de
+	Goroutines}
+	
+	La sentencia \textit{go} que comienza una nueva goroutine se ejecuta antes
+	de que la ejecución de la propia goroutine comience. Veamos un ejemplo al
+	respecto:
+	
+	\begin{verbatim} var a string
+	    
+		func f() { print (a) }
+	    
+		func hello() { a = ''Hello, World!" go f() } \end{verbatim}
+	
+	Una posible llamada a \textit{hello} imprimirá \textit{''Hello World!''} en
+	algún momento en el futuro (quizá después de que \textit{hello} haya
+	terminado).
+	
+	\subsection{Comunicación mediante canales}
+	
+	La comunicación mediante canales es el método principal de sincronización
+	entre goroutines. Cada send en un canal particular se corresponde con un
+	receive en ese mismo canal, que se ejecuta normalmente en otra goroutine.\\
+	
+	Un send en el canal se ejecuta antes de que la ejecución del receive
+	correspondiente de dicho canal finalice.\\
+	
+	Este programa garantiza la impresión de \textit{''Hello, World!''}. La
+	escritura de \textit{a} ocurre antes del send en \textit{c}, que ocurre
+	antes de que el correspondiente receive en \textit{c} termine, cosa que
+	ocurre siempre antes que \textit{print}.
+	
+	\begin{verbatim} var a string
+	    
+		func f() { a = ''Hello, World!" c <- 0 }
+	    
+		func main() { go f() <- c print (a) } \end{verbatim}
+	
+	\textit{Un receive de un canal sin buffer  ocurre siempre antes de que el
+	send en ese canal termine}.\\
+	
+	El siguiente programa también garantiza que se imprime \textit{''Hello,
+	World!}. La escritura en \textit{a} ocurre antes que el receive en
+	\textit{c}, lo que ocurre antes de que se realice el correspondiente send
+	\textit{c}, lo que ocurre antes de que se ejecute el \textit{print}.
+	
+	\begin{verbatim} var c = make (chan int) var a string
+	    
+		func f() { a = ''Hello, World!" <- c }
+	    
+		func main() { go f() c <- 0 print (a) } \end{verbatim}
+	
+	Si el canal tuviera buffer (por ejemplo, \textit{c = make (chan int, 1)})
+	entonces el programa no podría garantizar la impresión de \textit{''Hello,
+	World!''}. Puede imprimir la cadena vacía; No puede imprimir
+	\textit{''Hello, sailor''}, aunque tampoco puede terminar de forma
+	inesperada.
+
+\section{Cerrojos - Locks}
+
+El paquete \textit{sync} implementa dos tipos de cerrojos, \textit{sync.Mutex}
+y \textit{sync.RWMutex}.\\
+
+Para cualquier variable \textit{l} de tipo \textit{sync.Mutex}
+o \textit{sync.RWMutex} y para n < m, la n-ésima llamada a \textit{l.Unlock()}
+ocurre antes de que la m-ésima llamada a \textit{l.Lock()} termine.\\
+
+El siguiente programa garantiza la impresión de \textit{''Hello, World!"}. La
+primera llamada a \textit{l.Unlock()} (en \textit{f}) ocurre antes de que la
+segunda llamada a \textit{l.Lock()} (en \textit{main}) termine, lo que ocurre
+antes de que se ejecute \textit{print}.
+
+\begin{verbatim} var l sync.Mutex var a string
+    
+	func f() { a = ''Hello, World!'' l.Unlock() }
+    
+	func main() { l.Lock() go f() l.Lock() print(a) } \end{verbatim}
+
+Para cualquier llamada a \textit{l.RLock} en una variable \textit{l} de tipo
+\textit{sync.RWMutex}, existe una n tal que la llamada a \textit{l.RLock}
+termina después que la n-ésima llamada a \textit{l.Unlock} y su correspondiente
+\textit{l.RUnlock} ocurre antes de la n+1-ésima llamada a \textit{l.Lock}.
+
+\section{El paquete once}
+
+El paquete \textit{once} provee de un mecanismo seguro para la inicialización en
+presencia de varias goroutines. Múltiples threads pueden ejecutar
+\textit{once.Do(f)} para una \textit{f} particular, pero sólo una de ellas
+ejecutará la función \textit{f()} y el resto de llamadas se bloquearán hasta que
+\textit{f()} haya terminado su ejecución.\\
+
+\textit{Una única llamada a f() desde once.Do(f) termina antes de que cualquier
+otra llamada a once.Do(f) termine}.\\
+
+En el siguiente programa la llamada a \textit{twoprint} provoca que
+\textit{''Hello, World!''} se imprima dos veces. La primera llamada
+a \textit{twoprint} ejecuta \textit{setup} una vez.
+
+\begin{verbatim} var a string
+    
+	func setup() { a = ''Hello, World!'' }
+    
+	func doprint() { once.Do(setup) print(a) }
+    
+	func twoprint() { go doprint() go doprint() } \end{verbatim}
+
+\section{Sincronización incorrecta}
+
+En este apartado se va a tratar los problemas más comunes que pueden darse en
+una sincronización.\\
+
+Nótese que una lectura \textit{r} puede observar el valor escrito por una
+escritura \textit{w} que ocurre concurrentemente con \textit{r}. Aunque esto
+ocurra, no implica que las lecturas que ocurran después de \textit{r} observen
+escrituras que hayan ocurrido antes que \textit{w}.\\
+
+En el siguiente programa puede ocurrir que \textit{g} imprima \textit{2} y luego
+\textit{0}.  \clearpage \begin{verbatim} var a,b int
+    
+	func f() { a = 1 b = 2 }
+    
+	func g() { print(b) print(a) }
+    
+	func main() { go f() g() } \end{verbatim}
+
+La realización de un doble intento de bloqueo para conseguir exclusión mutua, es
+un intento de eliminar la sobrecarga de la sincronización. Por ejemplo, el
+programa \textit{twoprint} puede ser escrito incorrectamente como se puede
+observar a continuación, pero no garantiza que, en \textit{doprint}, observando
+la escritura en la variable \textit{done} no implica observar la escritura en
+\textit{a}. Esta versión puede (incorrectamente) imprimir una cadena vacía en
+lugar de \textit{''Hello, World!''}.
+
+\begin{verbatim} var a string var done bool
+    
+	func setup() { a = ''Hello, World!'' done = true }
+    
+	func doprint() { if !done { once.Do(setup) } print(a) }
+    
+	func twoprint() { go doprint() go doprint() } \end{verbatim} \clearpage Otro
+	ejemplo de una mala sincronización es:
+
+\begin{verbatim} var a string var done bool
+    
+	func setup() { a = ''Hello, World!'' done = true }
+    
+	func main() { go setup() for !done { } print(a) } \end{verbatim}
+    
+De la misma forma de antes no existe garantía que en \textit{main}, observando
+la escritura en \textit{done} no implica observar la escritura en \textit{a},
+así que este programa también puede imprimir la cadena vacía. Peor aún, no hay
+garantías de que la escritura en \textit{done} sea observable desde
+\textit{main}, dado que no hay eventos de sincronización entre los dos threads.
+Asimismo el bucle en \textit{main} no garantiza su finalización.\\
+    
+Hay sutiles variantes en este tema, como este programa:
+
+\begin{verbatim} type T struct { msg string }
+    
+	var g *T
+    
+	func setup() { t := new (T) t.msg = ''Hello, World!'' g = t }
+    
+	func main() { go setup() for g == nil { } print (g.msg) } \end{verbatim}
+
+Incluso si el \textit{main} observa \textit{g != nil} y sale de su bucle, no hay
+garantía de que observe el valor inicializado de \textit{g.msg}\\
+
+Para terminar, veamos un pequeño ejemplo de una incorrecta sincronización
+mediante canales. El siguiente programa, de la misma forma que los anteriores,
+puede no imprimir \textit{''Hello, World!''}, imprimiendo una cadena vacía dado
+que la goroutina no termina su ejecución antes de que lo haga el \textit{main}.
+
+\begin{verbatim} var c chan int
+
+	func hello() { fmt.Println(''Hello, World!'') c <- 0 }
+    
+	func main() { go hello() } \end{verbatim}
+
+Dado que se realiza un send al canal pero no se realiza su receive
+correspondiente en main, no se garantiza que hello termine de ejecutar antes de
+que termine la ejecución de main, que aborta el programa.

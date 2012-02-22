@@ -1,0 +1,609 @@
+
+\chapter{Estructuración de programas}
+
+\section{Paquetes y estructura de los ficheros fuente}
+
+Todos los programas en Go están construidos como paquetes, que pueden usar
+funciones de otros paquetes. Un programa está por lo tanto creado mediante el
+enlace de un conjunto de paquetes y cada paquete, se forma de uno o varios
+ficheros fuente.\\
+
+La importación de paquetes en Go se realiza de forma ``calificada", es decir,
+que cuando nos referimos al ítem de un paquete, hay que hacer una referencia
+explícita al nombre del paquete en cuestión. Así pues, tendremos una sintaxis
+similar a: \textit{nombreDelPaquete.NombreDelItem}.\\
+
+Todo fichero fuente contiene:
+
+\begin{itemize} \item Una cláusula de instanciación del paquete. Es decir, a qué
+paquete pertenece dicho fichero. El nombre usado es el nombre utilizado por
+defecto por los paquetes que lo importen.  \begin{verbatim} package fmt
+\end{verbatim} \item Un conjunto opcional de declaraciones de importación de
+otros paquetes.  \begin{verbatim} import "fmt"         // Usa el nombre por
+defecto import my_fmt "fmt"  // Usa en este fichero el nombre my_fmt
+\end{verbatim} \item Puede existir alguna declaración global o declaración
+a ``nivel de paquete".
+	%\begin{program}
+	\begin{verbatim} package main     // Este fichero forma parte del paquete
+	"main"
+    
+	   import "fmt"     // Este fichero utiliza el paquete "fmt"
+    
+	   const hola = "Hello, World!\n"
+    
+	   func main() { fmt.Print(hola)  // fmt es el nombre del paquete importado
+	   } \end{verbatim}
+	%\caption{Ejemplo de un paquete con un único fichero fuente} \end{program}
+\end{itemize}
+
+
+
+\section{Ámbito de una variable}
+
+El ámbito de una variable define la visibilidad de la misma por otras funciones,
+métodos, o incluso por otros paquetes, y que ésta pueda ser usada o no fuera de
+su entorno local.\\
+
+Dentro de un paquete todas las variables globales, funciones, tipos y constantes
+son visibles desde todos los ficheros que formen dicho paquete.\\
+
+Para los usuarios de dicho paquete - otros paquetes que lo importen -, los
+nombres deben comenzar por una letra mayúscula para que sean visibles. Esto se
+acepta para variables globales, funciones, tipos, constantes, además de métodos
+y atributos de una estructura, aplicados a variables globales y tipos. Su
+equivalente en C/C++ serían los modificadores: \textit{extern}, \textit{static},
+\textit{private} y \textit{public}.
+
+%\begin{program}
+\begin{verbatim} const hola = "Hola"         // Variable visible en el paquete
+const Hola = "Ey, Hola!"    // Variable visible globalmente const _Adios = "Ciao
+ciao"  // _ no es una letra mayúscula \end{verbatim}
+%\caption{Ejemplo de visibilidad} \end{program}
+
+\section{Inicialización}
+
+Todos los programas en Go deben contener un paquete llamado \textit{main} y tras
+la etapa de inicialización, la ejecución del programa comienza por la función
+\textit{main()} de dicho paquete, de forma análoga a la función global
+\textit{main()} en C o C++.\\
+
+La función \textit{main.main()} no acepta argumentos y no devuelve ningún valor.
+El programa finaliza su ejecución de forma inmediata y satisfactoriamente cuando
+la función \textit{main.main()} termina.\\
+
+Como se ha mencionado en el primer párrafo, antes de comenzar la ejecución
+existe una etapa de inicialización. Esta etapa se encarga de inicializar las
+variables globales antes de la ejecución de \textit{main.main()}. Existen dos
+formas de hacer esta inicialización:
+
+\begin{enumerate} \item Una declaración global con un inicializador.  \item Una
+función \textit{init()}. Pueden existir tantas como una por fichero fuente.
+\end{enumerate}
+
+La dependencia entre los paquetes garantiza un orden de ejecución correcto. La
+inicialización siempre se realiza de forma ``mono-hilo", es decir, no existe
+ningún tipo de concurrencia en la etapa de inicialización para hacerla más
+segura. Veamos un ejemplo de inicialización:
+
+%\begin{program}
+\begin{verbatim} package trascendental import "math" var Pi float64
+    
+    
+    
+	func init() { Pi = 4 * math.Atan(1)   // init() calcula Pi }
+    
+	---------------------
+    
+	package main import ( "fmt"; "trascendental")
+    
+	// La declaración calcula dosPi var dosPi = 2 * trascendental.Pi
+    
+	func main() { fmt.Printf("2*Pi = \%g\n", dosPi) } \end{verbatim}
+%\caption{Ejemplo de inicialización} \end{program}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% ¿Hablamos de compilación de paquetes? %
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Testing}
+
+Go provee al programador de una serie de recursos muy interesantes. Entre ellos,
+cabe destacar el sistema de pruebas que ofrece al programador para generar las
+pruebas de su código y realizar un test automático.\\
+
+Para probar un paquete hay que escribir un conjunto de ficheros fuente dentro
+del mismo paquete, con nombres del tipo \textit{*\textunderscore test.go}.\\
+
+Dentro de esos ficheros se declararán las funciones globales que le darán
+soporte a la herramienta de test \textit{gotest}. Las funciones deben seguir el
+siguiente patrón: Test[\textasciicircum a-z]*, es decir, la palabra ``Test"
+seguida de un número indefinido de letras. Además deben de tener la declaración
+de la siguiente forma:
+
+\begin{verbatim} func TestXxxx (t *testing.T) \end{verbatim}
+
+El paquete \textit{testing} proporciona una serie de utilidades de
+\textit{logging} y \textit{error reporting}.\\
+
+Veamos un ejemplo sacado de la librería \textit{fmt} de Go:
+
+%\begin{program}
+\begin{verbatim} package fmt import ( "testing")
+    
+    
+    
+	func TestFlagParser(t *testing.T) { var flagprinter flagPrinter for _, tt :=
+	range flagtests { s := Sprintf(tt.in, &flagprinter) if s != tt.out
+	{ t.Errorf("Sprintf(\%q, &flagprinter) => \%q, want \%q", tt.in, s, tt.out)
+	} } } \end{verbatim}
+%\caption{Ejemplo de testing: fmt\textunderscore test.go} \end{program}
+
+Al utilizar la herramienta \textit{gotest} se ejecutan todos los ficheros
+*\textunderscore test.go. Al ejecutarlo sobre el fichero anteriormente nombrado
+\textit{fmt\textunderscore test.go}, obtenemos la siguiente salida:
+
+\begin{verbatim} mallocs per Sprintf(""): 2 mallocs per Sprintf("xxx"):
+3 mallocs per Sprintf("\%x"): 5 mallocs per Sprintf("\%x \%x"): 7 PASS
+\end{verbatim}
+
+\section{Librerías}
+
+Las librerías son paquetes normales pero que por convención se suele llamar así
+a los paquetes que vienen integrados dentro del propio lenguaje.\\
+
+Actualmente las librerías existentes son pocas, pero están creciendo a un ritmo
+vertiginoso. Veamos en una tabla algunos ejemplos:
+
+\begin{table}[htb] \begin{center} \begin{tabular}{|c|c|c|} \hline
+\textbf{Paquete} & \textbf{Propósito} & \textbf{Ejemplos}\\ \hline fmt & E/S
+formateada & Printf, Sprintf...\\ os & Interfaz del SO & Open, Read, Write...\\
+strconv & números $<->$ string & Atoi, Atof, Itoa...\\ io & E/S genérica & Copy,
+Pipe...\\ flag & flags: --help, etc. & Bool, String...\\ log & Log de eventos
+& Log, Logf, Stderr...\\ regexp & Expresiones regulares & Compile, Match...\\
+template & HTML, etc. & Parse, Execute...\\ bytes & byte arrays & Compare,
+Buffer...\\ \hline \end{tabular} \end{center} \caption{Tabla de paquetes}
+\end{table}
+
+	\subsection{Fmt}
+	
+	El paquete \textit{fmt} implementa las funciones de entrada / salida
+	formateada, de manera análoga a otras funciones en otros lenguajes como C.
+	
+		\subsubsection{Modificadores}
+	
+		Las funciones que utilizan utilizan un formato para imprimir los datos,
+		usan una serie de modificadores para imprimir los distintos tipos de
+		datos. A continuación hay una lista de los modificadores existentes:
+	
+		\begin{itemize} \item \textbf{General:} \begin{itemize} \item \%v
+		imprime el valor en un formato por defecto.\\ Cuando se imprimen
+		structs, el flag + (\%+v) añade los nombres de los campos.  \item \%\#v
+		una representación en ``sintaxis-Go'' del valor \item \%T  una
+		representación en ``sintaxis-Go'' del tipo del valor \end{itemize} \item
+		\textbf{Boolean:} \begin{itemize} \item \%t  la palabra true o false
+		\end{itemize} \item \textbf{Enteros:} \begin{itemize} \item \%b	base
+		2 \item \%c	el caracter representado por su código Unicode \item \%d
+		base 10 \item \%o	base 8 \item \%x	base 16, con letras minúsculas
+		de a-f \item \%X	base 16, con letras mayúsculas de A-F \end{itemize}
+		\item \textbf{Reales:} \begin{itemize} \item \%e  notación científica,
+		p.ej. -1234.456e+78 \item \%E  notación científica, p.ej. -1234.456E+78
+		\item \%f  coma flotante sin exponente, e.g. 123.456 \item \%g
+		cualquiera que \%e o \%f produzca pero de manera más compacta \item \%G
+		cualquiera que \%E o \%f produzca pero de manera más compacta
+		\end{itemize} \item \textbf{Cadenas de caracteres o slices de bytes:}
+		\begin{itemize} \item \%s  los bytes sin interpretar de un string
+		o slice \item \%q  una cadena de caracteres con dobles comillas escapada
+		de forma segura con una sintaxis Go \item \%x  notación base 16 con dos
+		caracteres por byte \end{itemize} \item \textbf{Punteros:}
+		\begin{itemize} \item \%p	notación base 16, con un 0x precedente
+		\end{itemize}
+
+			\item No hay flag 'u'. Los enteros se imprimen sin signo si son del
+			tipo unsigned.  \end{itemize}
+	
+	\clearpage
+	
+		\subsubsection{Fprintf}
+		
+		\begin{verbatim} func Fprintf(w io.Writer, format string,
+		a ...interface{}) (n int, error os.Error) \end{verbatim}
+		
+		La función \textit{Fprintf} escribe en un elemento de tipo
+		\textit{io.Writer} (es decir, un descriptor de fichero o similares), con
+		el formato indicado en el parámetro \textit{format}. El resto de
+		parámetros son las variables en cuestión que deben imprimirse.\\
+		
+		\textit{Fprintf} devuelve 2 valores: \begin{itemize} \item \textbf{n}:
+		Indica el número de caracteres escritos correctamente.  \item
+		\textbf{error}: Contiene un valor significativo si ha habido algún
+		error.  \end{itemize}
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var x int = 2 var punt *int
+		
+			fmt.Fprintf (os.Stdout, "La variable x que vale \%d, está en la
+			posición \%p", x, &punt) \end{verbatim}
+		
+		\subsubsection{Printf}
+		
+		\begin{verbatim} func Printf(format string, a ...interface{}) (n int,
+		errno os.Error) \end{verbatim}
+		
+		La función \textit{Printf} escribe por la salida estándar con el formato
+		indicado en el parámetro \textit{format}. El resto de parámetros son las
+		variables en cuestión que deben imprimirse. Realmente, \textit{Printf}
+		realiza una llamada a \textit{Fprintf} con el primer parámetro igual
+		a \textit{os.Stdout}.\\
+		
+		\textit{Printf} devuelve 2 valores: \begin{itemize} \item \textbf{n}:
+		Indica el número de caracteres escritos correctamente.  \item
+		\textbf{errno}: Contiene un valor significativo si ha habido algún
+		error.  \end{itemize}
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var x int = 2 var punt *int
+		
+			fmt.Printf ("La variable x que vale \%d, está en la posición \%p",
+			x, &punt) \end{verbatim}
+		
+		\subsubsection{Sprintf}
+		
+		\begin{verbatim} func Sprintf(format string, a ...interface{}) string
+		\end{verbatim}
+		
+		La función \textit{Sprintf} escribe en un buffer intermedio la cadena de
+		caracteres pasada con el formato indicado en el parámetro
+		\textit{format}. El resto de parámetros son las variables en cuestión
+		que deben imprimirse.\\
+		
+		\textit{Sprintf} devuelve la cadena de caracteres que hemos
+		formateado.\\
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var x int = 2 var punt *int var s string
+		
+			s = fmt.Sprintf ("La variable x que vale \%d, está en la posición
+			\%p", x, &punt) \end{verbatim}
+		
+		\subsubsection{Fprint, Print y Sprint}
+		
+		\begin{verbatim} func Fprint(w io.Writer, a ...interface{}) (n int,
+		error os.Error) func Print(a ...interface{}) (n int, errno os.Error)
+		func Sprint(a ...interface{}) string \end{verbatim}
+		
+		Las funciones \textit{Fprint}, \textit{Print} y \textit{Sprint} son
+		generalizaciones de las funciones anteriormente descritas. Como se puede
+		observar, cambian el nombre eliminando la 'f' final y el parámetro que
+		se corresponde con el formato. Así pues, estas funciones imprimen en el
+		formato por defecto que el lenguaje considere.\\
+				
+		Veamos un ejemplo de cómo se usarían las funciones:
+		
+		\begin{verbatim} fmt.Fprint (os.Stderr, "Error: 12") fmt.Print ("ACM da
+		muchos cursos geniales\n") s = fmt.Sprint ("Go mola un montón")
+		\end{verbatim}
+		
+		La salida del programa sería:
+		
+		\begin{verbatim} Error: 12ACM da muchos cursos geniales Go mola un
+		montón \end{verbatim}
+		
+		\subsubsection{Fprintln, Println y Sprintln}
+		
+		\begin{verbatim} func Fprintln(w io.Writer, a ...interface{}) (n int,
+		error os.Error) func Println(a ...interface{}) (n int, errno os.Error)
+		func Sprintln(a ...interface{}) string \end{verbatim}
+		
+		Las funciones \textit{Fprintln}, \textit{Println} y \textit{Sprintln}
+		son generalizaciones de las funciones con formato anteriormente
+		descritas. Como se puede observar, estas funciones terminan en 'ln' lo
+		que indica que al final del último operando que se le pase a la función,
+		añaden un salto de línea automáticamente.\\
+				
+		Veamos un ejemplo de cómo se usarían las funciones:
+		
+		\begin{verbatim} fmt.Fprintln (os.Stderr, "Error: 12") fmt.Println ("ACM
+		da muchos cursos geniales") s = fmt.Sprintln ("Go mola un montón")
+		\end{verbatim}
+		
+		La salida del programa sería:
+		
+		\begin{verbatim} Error: 12 ACM da muchos cursos geniales Go mola un
+		montón \end{verbatim}
+
+	\subsection{Os}
+	
+	El paquete \textit{os} se compone de varios ficheros que tratan toda la
+	comunicación con el Sistema Operativo. Vamos a ver algunas de las funciones
+	más utilizadas de dicho paquete y que están repartidas en diversos ficheros.
+	
+		\subsubsection{ForkExec}
+
+		\begin{verbatim} func ForkExec(argv0 string, argv []string, envv
+		[]string, dir string, fd []*File) (pid int, err Error) \end{verbatim}
+				
+		La función \textit{ForkExec} crea un nuevo hilo de ejecución dentro del
+		proceso actual e invoca al comando Exec (ejecuta otro programa) con el
+		programa indicado en \textit{argv0}, con los argumentos \textit{argv[]}
+		y el entorno descrito en \textit{envv}.\\
+		
+		El array \textit{fd} especifica los descriptores de fichero que se
+		usarán en el nuevo proceso: fd[0] será el descriptor 0 (equivalente
+		a os.Stdin o entrada estándar), fd[1] será el descriptor 1 y así
+		sucesivamente. Pasándole un valor de \textit{nil} hará que el proceso
+		hijo no tenga los descriptores abiertos con esos índices.\\
+		
+		Si \textit{dir} no está vacío, el proceso creado se introduce en dicho
+		directorio antes de ejecutar el programa.\\
+		
+		\textit{ForkExec} devuelve 2 valores: \begin{itemize} \item
+		\textbf{pid}: Indica el id de proceso (pid) del proceso hijo.  \item
+		\textbf{err}: Contiene un valor significativo si ha habido algún error.
+		\end{itemize}
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var argv []string { "/bin/ls", "-l" } var env []string
+		
+			pid, ok := os.ForkExec ("/bin/ls", argv, env, "/home", null)
+			\end{verbatim}
+		
+		\subsubsection{Exec}
+
+		\begin{verbatim} func Exec(argv0 string, argv []string, envv []string)
+		Error \end{verbatim}
+				
+		La función \textit{Exec} sustituye el proceso actual pasando a ejecutar
+		otro programa mediante el comando Exec, que ejecuta otro programa
+		indicado en \textit{argv0}, con los argumentos \textit{argv[]} y el
+		entorno descrito en \textit{envv}.\\
+		
+		Si el comando se ejecuta correctamente, nunca retorna al programa
+		principal. En caso de fallo devuelve un error.\\
+		
+		ForkExec es, casi siempre, una mejor opción para ejecutar un programa,
+		ya que tras su ejecución volvemos a tener control sobre el código
+		ejecutado.\\
+		
+		\textit{Exec} devuelve un error en caso de que el comando nose ejecute
+		correctamente.\\
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var argv []string { "/bin/ls", "-l" } var env []string
+		
+			error := os.Exec ("/bin/ls", argv, env) \end{verbatim}
+		
+		\subsubsection{Wait}
+
+		\begin{verbatim} func Wait(pid int, options int) (w *Waitmsg, err Error)
+		\end{verbatim}
+				
+		La función \textit{Wait} espera a que termine o se detenga la ejecución
+		de un proceso con identificador \textit{pid} y retorna un mensaje
+		describiendo su estado y un error, si es que lo hay. El parámetro
+		\textit{options} describe las opciones referentes a la llamada
+		\textit{wait}.\\
+		
+		\textit{Wait} devuelve 2 valores: \begin{itemize} \item \textbf{w}: Un
+		mensaje con el estado del proceso.  \item \textbf{err}: Contiene un
+		valor significativo si ha habido algún error.  \end{itemize}
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var argv []string { "/bin/ls", "-l" } var env []string
+		
+		   if pid, ok := os.ForkExec ("/bin/ls", argv, env, "/home", nil); ok
+		   { msg, ok := os.Wait(pid, 0) }	    \end{verbatim} \clearpage
+		   \subsubsection{Getpid}
+
+		\begin{verbatim} func Getpid() int \end{verbatim}
+				
+		La función \textit{Getpid} devuelve el identificador del proceso que
+		ejecuta la función. 
+		
+		\subsubsection{Getppid}
+
+		\begin{verbatim} func Getppid() int \end{verbatim}
+				
+		La función \textit{Getppid} devuelve el identificador del proceso padre
+		del que ejecuta la función. 
+		
+		\subsubsection{Exit}
+
+		\begin{verbatim} func Exit(code int) \end{verbatim}
+				
+		La función \textit{Exit} termina la ejecución del programa con un código
+		de error indicado en el parámetro \textit{code}.
+		
+	\subsection{Os - Entrada/salida en ficheros}
+	
+	La escritura en ficheros depende del paquete \textit{os}. A pesar de ello,
+	se ha creado una nueva sección en el manual para tratar las funciones de
+	tratamiento de ficheros para una mejor comprensión de las mismas.
+	
+		\subsubsection{El tipo File}
+		
+		Los ficheros en un Sistema Operativo son identificados a través de
+		identificadores de ficheros, que indican con un número cada fichero
+		abierto en el sistema y accesible por cada proceso. El tipo
+		\textit{File} representa un descriptor de fichero abierto que trata como
+		si fuera un objeto, y está definido dentro del paquete \textit{os} como:
+		
+		\begin{verbatim} // File represents an open file descriptor.  type File
+		struct { fd      int name    string dirinfo *dirInfo // nil a menos que
+		sea un directorio nepipe  int } \end{verbatim}
+		
+		Los parámetros importantes son los dos primeros:
+		
+		\begin{itemize} \item \textbf{fd}: Indica el descriptor de fichero del
+		archivo.  \item \textbf{name}: Indica el nombre relativo del fichero
+		(hello.go y no /home/yo/hello.go) \end{itemize}
+		
+		Echemos ahora un vistazo a las funciones que nos permiten manejar
+		ficheros.
+		
+		\subsubsection{Fd}
+
+		\begin{verbatim} func (file *File) Fd() int \end{verbatim}
+				
+		La función \textit{Fd} devuelve el descriptor de fichero del archivo
+		\textit{file} que llama a la función.\\
+		
+		\textbf{Nota.-} Nótese que Fd no recibe ningún parámetro, sino que es un
+		objeto quien invocará a dicho método. Para una mejor comprensión se
+		recomienda repasar este punto tras la lectura del capítulo 6.
+		
+		\subsubsection{Name}
+
+		\begin{verbatim} func (file *File) Name() string \end{verbatim}
+				
+		La función \textit{Name} devuelve el nombre relativo del fichero
+		\textit{file} que llama a la función.
+		
+		\subsubsection{Open}
+		
+		Las función \textit{Open} que vamos a ver a continuación utiliza una
+		serie de modificadores para abrir los ficheros en distintos modos. Los
+		modificadores existentes son:
+		
+		\begin{verbatim} O_RDONLY  // Abre el fichero en modo sólo lectura
+		O_WRONLY  // Abre el fichero en modo sólo escritura O_RDWR  // Abre el
+		fichero en modo lectura-escritura O_APPEND  // Abre el fichero en modo
+		append (escribir al final) O_ASYNC  // Genera una señal cuando la E/S
+		está disponible O_CREAT  // Crea un nuevo fichero si no existe O_EXCL
+		// Usado con O_CREAT. El fichero debe no existir O_SYNC  // Abre el
+		fichero listo para E/S síncrona O_TRUNC  // Si es posible trunca el
+		fichero al abrirlo O_CREATE  // Igual a O_CREAT \end{verbatim}
+		
+		La función \textit{Open} tiene el siguiente formato:
+		
+		\begin{verbatim} func Open(name string, flag int, perm int) (file *File,
+		err Error) \end{verbatim}
+		
+		La función abre el fichero indicado (con su ruta absoluta o relativa) en
+		el parámetro \textit{name}, del modo que se especifica en el parámetro
+		\textit{flag} usando los flags anteriormente descritos, con los permisos
+		indicados en el último parámetro.\\
+		
+		\textit{Open} devuelve 2 valores: \begin{itemize} \item \textbf{file}:
+		Un puntero a un objeto de tipo *File, que usaremos después para llamar
+		a los distintos métodos.  \item \textbf{err}: Un error en caso de que la
+		apertura no haya funcionado correctamente.  \end{itemize} \clearpage
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var fichero *os.File var error os.Error
+		    
+			fichero, error = os.Open("/home/yo/mifichero", O_CREAT | O_APPEND,
+			660) \end{verbatim}
+		
+		\subsubsection{Close}
+		
+		\begin{verbatim} func (file *File) Close() Error \end{verbatim}
+		
+		La función \textit{Close} cierra el fichero que invoca dicho método.\\
+		
+		\textit{Close} devuelve un error en caso de que la llamada no haya
+		podido completarse correctamente.\\
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var fichero *os.File var error os.Error
+		    
+			fichero, error = os.Open("/home/yo/mifichero", O_CREAT | O_APPEND,
+			660) fichero.Close() \end{verbatim}
+		
+		\subsubsection{Read}
+		
+		\begin{verbatim} func (file *File) Read(b []byte) (n int, err Error)
+		\end{verbatim}
+		
+		La función \textit{Read} lee caracteres hasta el número máximo de bytes
+		que haya en el parámetro \textit{b}, que se consigue con la llamada
+		\textit{len(b)}.\\
+		
+		\textit{Read} devuelve 2 valores: \begin{itemize} \item \textbf{n}: El
+		número de bytes leídos realmente.  \item \textbf{err}: Contiene un valor
+		significativo si ha habido algún error.  \end{itemize}
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var fichero *os.File var error os.Error var bytes
+		[256]byte var num_leidos int
+		    
+			fichero, error = os.Open("/home/yo/mifichero", O_CREAT | O_RDONLY,
+			660) num_leidos, error = fichero.Read (byte) fichero.Close()
+			\end{verbatim}
+		
+		\subsubsection{Write}
+		
+		\begin{verbatim} func (file *File) Write(b []byte) (n int, err Error)
+		\end{verbatim}
+		
+		La función \textit{Write} escribe caracteres hasta el número de bytes
+		que haya en el parámetro \textit{b}.\\
+		
+		\textit{Write} devuelve 2 valores: \begin{itemize} \item \textbf{n}: El
+		número de bytes escritos realmente.  \item \textbf{err}: Contiene un
+		valor significativo si ha habido algún error.  \end{itemize}
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var fichero *os.File var error os.Error var bytes
+		[256]byte = { 'H', 'o', 'l', 'a' } var num_leidos int
+		    
+			fichero, error = os.Open("/home/yo/mifichero", O_CREAT | O_APPEND,
+			660) num_leidos, error = fichero.Write (byte) fichero.Close()
+			\end{verbatim}
+		
+		\subsubsection{WriteString}
+		
+		\begin{verbatim} func (file *File) WriteString(s string) (ret int, err
+		Error) \end{verbatim}
+		
+		La función \textit{WriteString} escribe una cadena de caracteres
+		(string). Es mucho más cómodo usar esta función para escribir datos en
+		un fichero.\\
+		
+		\textit{WriteString} devuelve 2 valores: \begin{itemize} \item
+		\textbf{ret}: El número de caracteres escritos realmente.  \item
+		\textbf{err}: Contiene un valor significativo si ha habido algún error.
+		\end{itemize}
+		
+		Veamos un ejemplo de cómo se usaría la función:
+		
+		\begin{verbatim} var fichero *os.File var error os.Error var cadena
+		String = "Hola" var num_leidos int
+		    
+			fichero, error = os.Open("/home/yo/mifichero", O_CREAT | O_APPEND,
+			660) num_leidos, error = fichero.WriteString (cadena)
+			fichero.Close() \end{verbatim}
+		
+	\subsection{Otras librerías}
+	
+	\textit{Go} es un lenguaje en desarrollo, y como tal sus librerías están
+	todavía creciendo aunque lo hacen a pasos agigantados. Una de las mejores
+	características de \textit{Go} es que tiene unas librerías muy bien
+	documentadas, tanto en el código como en la documentación online de la
+	página web oficial.\\
+	
+	A continuación se mencionan algunas de las librerías más comúnmente usadas,
+	que el lector puede entender perfectamente al finalizar este curso.
+	
+	\begin{itemize} \item \textbf{bufio}: Es una librería con funciones
+	encargadas de realizar E/S a través de un buffer.  \item \textbf{crypto}:
+	Una interesante librería con múltiples funciones criptográficas.  \item
+	\textbf{flag}: Esta librería se encarga de manejar todos los parámetros
+	pasados al programa mediante la línea de comandos.  \item \textbf{http}: Una
+	librería que contiene un servidor http y todas las funciones necesarias para
+	implementar un programa para la web.  \item \textbf{image}: Contiene
+	funciones para el manejo de imágenes, bitmaps...  \item \textbf{math}:
+	Librería de funciones matemáticas de todo tipo.  \item \textbf{reflect}: La
+	librería encargada de gestionar funciones con número variable de parámetros.
+	(Se verá en detalle más adelante).  \item \textbf{strings}: Una serie de
+	funciones para manejo de cadenas de caracteres.  \item \textbf{testing}: La
+	librería más completa para realizar pruebas sobre tu propio programa.
+	\end{itemize}

@@ -1,0 +1,119 @@
+% Anexo: Herramientas de Go
+\chapter{Herramientas de Go}
+
+\section{Compiladores}
+
+Go viene con un conjunto de herramientas bastante completo. Entre las
+herramientas más importantes, están los dos tipos de compiladores que podemos
+usar para generar nuestros programas ejecutables: \emph{gccgo y 6g/8g}.\\
+
+Vamos a ver características de uno y otro, y un ejemplo de cómo realizar una
+compilación con el compilador nativo de Go, la versión 6g/8g. Una característica
+común de ambos, es que generan un código únicamente entre un 10\% y un 20\% más
+lento que código en C.
+
+	\subsection{gccgo}
+	
+	El compilador \emph{gccgo} es un \textit{front-end} del famoso compilador
+	de C, GCC. Posee las siguientes características:
+	
+	\begin{itemize} \item Es un compilador más tradicional.  \item Soporta
+	32-bit y 64-bit bajo x86, además de ARM.  \item Genera muy buen código, pero
+	no tan rápido como su hermano \emph{6g/8g}.  \item Se puede enlazar con
+	GCC, y así realizar una compilación con C.  \item No soporta pilas
+	segmentadas todavía y aloja cada goroutine - se verá más adelante - por hilo
+	de ejecución.  \end{itemize}
+	
+	Su uso, es exactamente igual al uso que se le da a GCC, sólo que invocándolo
+	con el comando gccgo.
+	
+	\subsection{6g/8g}
+	
+	El compilador \emph{6g/8g} es un compilador experimental nativo de Go.
+	\emph{6g}, es el compilador asociado a la arquitectura amd64, y genera
+	ficheros objeto con extensión ".6". \emph{8g}, es el compilador asociado
+	a la arquitectura 386, y genera ficheros objeto con extensión ".8".
+	\clearpage \begin{itemize} \item Es un compilador experimental.  \item
+	Soporta 32-bit y 64-bit bajo x86, además de ARM.  \item Genera buen código
+	de forma muy, muy rápida.  \item No se puede enlazar con GCC, pero tiene
+	soporte FFI.  \item Posee un buen soporte de gouroutines, multiplexándolas
+	en varios hilos de ejecución, e implementa las pilas segmentadas.
+	\end{itemize}
+	
+	Para compilar un archivo cualquiera llamado \textbf{file.go}, usaremos el
+	comando:
+	
+	\begin{verbatim} $ 6g file.go \end{verbatim}
+	
+	y para enlazar el archivo y así generar el fichero ejecutable
+	correspondiente, usaremos:
+	
+	\begin{verbatim} $ 6l file.6 \end{verbatim}
+	
+	Finalmente, para ejecutar el programa usaremos el comando:
+	
+	\begin{verbatim} $ ./6.out \end{verbatim}
+	
+	\textbf{Nota.-} Hay que tener en cuenta, que si se usa la versión 32-bit del
+	compilador, se cambiaría cada 6 por un 8.\\
+	
+	\textbf{Nota.-} Para conseguir compilar un fichero con su propio nombre (y
+	así no usar el fichero ejecutable por defecto (6.out), podemos pasarle el
+	parámetro \emph{-o fichero\textunderscore salida} (ejemplo: 6l -o fichero
+	file.6).\\
+	
+	El \emph{linker} de Go (\textit{6l}), no necesita recibir ningún otro
+	fichero del que dependa la compilación, como en otros lenguajes, ya que el
+	compilador averigua qué ficheros son necesarios leyendo el comienzo del
+	fichero compilado.\\
+	
+	A la hora de compilar un fichero \textbf{A.go} que dependa de otro
+	\textbf{B.go} que depende a su vez de \textbf{C.go}:
+	
+	\begin{itemize} \renewcommand{\labelitemi}{-} \item Compila \textbf{C.go},
+	\textbf{B.go} y finalmente \textbf{A.go}.  \item Para compilar
+	\textbf{A.go}, el compilador lee \textbf{B.go}, no \textbf{C.go}
+	\end{itemize}
+
+\section{Otras herramientas}
+
+La distribución de Go viene con una serie de herramientas bastante útiles,
+aunque todavía le faltan otras importantes, como un depurador, que está en
+desarrollo. Así pues, contamos con: Godoc, Gofmt y con gdb\footnote{Aquellos que
+usen \emph{gccgo} pueden invocar \textit{gdb}, pero la tabla de símbolos será
+como la de C y no tendrán conocimiento del \emph{run-time}}.
+
+	\subsection{Godoc}
+	
+	\emph{Godoc} es un servidor de documentación, análogo a \textbf{javadoc},
+	pero más fácil para el programador que éste último.\\
+	
+	Como comentamos al principio del manual, la documentación oficial de Go, que
+	se puede ver en su página oficial\footnote{http://golang.org} se apoya
+	precisamente en esta herramienta.\\
+	
+	Es una herramienta muy útil para generar la documentación de nuestros
+	programas y poder compartirlo con la gente de forma rápida y sencilla,
+	a través de la web.\\
+	
+	La documentación de las librerías estándar de Go, se basa en los comentarios
+	del código fuente. Para ver la documentación de una librería, podemos verla
+	online a través de la web \emph{http://golang.org/pkg} o bien a través de
+	la linea de comandos, ejecutando:
+	
+	\begin{verbatim} godoc fmt godoc fmt Printf \end{verbatim}
+	
+	Y así cambiando \emph{fmt} por el nombre del paquete que queramos ver,
+	y \emph{Printf} por la función en cuestión a ser visualizada.
+	
+	\subsection{Gofmt}
+	
+	\emph{Gofmt} es un formateador de código. Es una herramienta muy útil para
+	ver correctamente el código. Todo el código que se puede observar en la
+	página web oficial, está formateado con esta herramienta.
+	
+	%%%%%%%%%%%%%%%%%%%%%%
+	% ¿Hablamos de la herramienta gotest?    %
+	%%%%%%%%%%%%%%%%%%%%%%
+
+

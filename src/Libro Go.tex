@@ -1,0 +1,194 @@
+% vim : tabstop 4
+%%%%%%%%%
+% manual_go.tex - Introducción a Go
+% Roberto Costumero Moreno <roberto@costumero.es>
+% Héctor Ambit Hernández <h.ambit.h@gmail.com>
+%%%%%%%%%
+
+% Tipo de documento
+\documentclass[a4paper,titlepage,twoside,openright]{book}
+
+% Márgenes de todas las hojas
+\usepackage[left=1.7cm, right=2.2cm, top=1.5cm, bottom=2.4cm]{geometry}
+
+% Importación de paquetes a usar
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{boxedminipage}
+\usepackage{listings}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{hyperref}
+
+% Cambiamos el tipo de los Capítulos
+\usepackage{psboxit,pstcol}
+\makeatletter
+\def\thickhrulefill{\leavevmode \leaders \hrule height 1ex \hfill \kern \z@}
+\def\@makechapterhead#1{%
+  \reset@font
+  \parindent \z@ 
+  \vspace*{10\p@}%
+  \hbox{%
+    \vbox{%
+	  \hspace{0pt}
+	  {\LARGE \bfseries \@chapapp{}
+            \strut \vrule height 1em depth 0pt width 0pt
+            \thechapter}%
+      \hrule height 0.4pt depth 0pt width \hsize
+      \par
+      \vskip 6pt%
+      \hspace{20pt}%
+      \parbox{20cm}{%
+        \Huge \bfseries #1}%
+      }%
+    }%
+  \vskip 50\p@
+}
+
+% Definimos las cabeceras y pies de página
+\pagestyle{fancy}
+\lhead{\leftmark}
+\chead{}
+\rhead{SECCIÓN \rightmark} %\bfseries Introducción a Go}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+\renewcommand{\headrulewidth}{0.1pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Definimos nuevos colores
+\definecolor{light-gray}{gray}{0.95}
+
+% Ponemos el color de fondo a los trozos de código.
+\lstset{backgroundcolor=\color{light-gray}, breaklines=true,
+extendedchars=\true, inputencoding=utf8, showstringspaces=false, tabsize=4,
+captionpos=b, numbers=left, texcl=true}
+\renewcommand{\lstlistlistingname}{Índice de códigos}
+\renewcommand{\lstlistingname}{Código}
+
+
+%%%%%%%%%%%%%%%%%%%
+% Nuevos comandos
+%%%%%%%%%%%%%%%%%%%
+% Nota
+\newcommand{\nota}[1]{
+	\begin{center}
+	\begin{boxedminipage}{16cm}
+		\begin{flushleft}
+			%\includegraphics[width=0.7cm]{im/imagen_nota.eps}
+			\textbf{Nota.-} \begin{small}#1\end{small}
+		\end{flushleft}
+	\end{boxedminipage}
+	\end{center}
+}
+
+% Consejo
+\newcommand{\consejo}[1]{
+	\begin{flushleft}
+	\begin{tabular}{lr}
+	\includegraphics[width=0.7cm]{im/imagen_consejo}
+	& \parbox{14cm}{\textbf{Consejo.-} #1}\\
+	\end{tabular}
+	\end{flushleft}
+}
+
+%% Ejemplo codigo
+\newcommand{\codigo}[3]{
+	\begin{flushleft}
+		\begin{tabular}{|l|}
+			\hline
+			\includegraphics[width=1.5cm]{images/go_logo.png}
+			\begin{large}\textbf{Ejemplo}\end{large}\\
+		\end{tabular}
+		\begin{tabular}{|cl|}
+			\hline
+			&\\
+			&
+			\begin{minipage}{16.2cm}
+				\lstinputlisting[language=go,caption=#1,label=#2]{#3}
+			\end{minipage} \\
+			\hline
+		\end{tabular}
+	\end{flushleft}
+}
+
+%%%%%%%%%%%%%%%%%%%
+% Comienzo del documento
+\begin{document}
+
+% Creamos el título
+\title{
+	{\Huge Introducción a Go}\\
+	\ \\
+	\includegraphics{images/go_logo.png}
+	\author{\textbf{Roberto Costumero Moreno}\\
+	\textbf{Héctor Ambit Hernández}
+	}
+}
+\date{Noviembre 2011}
+\maketitle
+\newpage
+
+% Creamos la página de la licencia
+\thispagestyle{empty}
+\textbf{\Large{Introducción a Go}}\\
+
+Autores:\\
+
+Roberto Costumero Moreno $<$roberto@costumero.es$>$
+
+Héctor Ambit Hernández $<$h.ambit.h@gmail.com$>$\\
+
+El logotipo de Go y la información correspondiente al presente manual ha sido obtenida, recopilada y modificada adecuadamente de la página oficial de Go, \textit{http://golang.org}.
+
+El logotipo de Go y la información referente al lenguaje están licenciadas por Google\texttrademark\  bajo una \textbf{Licencia Reconocimiento 3.0 de Creative Commons} y puede consultarse en la siguiente dirección: \textit{http://creativecommons.org/licenses/by/3.0/es/}. El uso del logotipo y de la información están autorizados por la presente licencia mencionando su correcta atribución.
+
+\begin{flushleft}
+\includegraphics{images/cc.png}
+\end{flushleft}
+
+Esta obra puede ser distribuida únicamente bajo los términos y condiciones expuestos en la \textbf{Licencia Reconocimiento-No Comercial-Compartir bajo la misma licencia 3.0 España de Creative Commons} o superior (puede consultarla en \textit{http://creativecommons.org/licenses/by-nc-sa/3.0/es/}).\\
+
+\clearpage
+\thispagestyle{empty}
+\begin{flushright}
+Gracias a todos nuestros amigos y compañeros
+
+que han hecho posible la publicación de este libro,
+
+con su apoyo y comprensión en esos momentos de locura
+
+y euforia con este gran lenguaje de programación.
+\end{flushright}
+\clearpage
+
+\thispagestyle{empty}
+\newpage
+
+\pagenumbering{roman}
+
+% Se crea el índice
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings
+\newpage
+
+\pagenumbering{arabic}
+
+% Importamos cada uno de los capítulos creados en ficheros a parte.
+\include{introduccion/introduccion}
+\include{caracteristicas/caracteristicas}
+\include{estructuras/estructuras}
+\include{programas/programas}
+\include{datos_compuestos/datos_compuestos}
+\include{oo/oo}
+\include{concurrencia/concurrencia}
+\include{modelo_memoria/modelo_memoria}
+\include{herramientas/herramientas}
+\include{bibliografia}
+
+\end{document}

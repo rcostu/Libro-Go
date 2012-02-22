@@ -1,0 +1,410 @@
+% Capítulo 1: Introducción
+\chapter{Introducción}
+
+Este libro es el resultado del esfuerzo dedicado durante muchas horas a la
+documentación del lenguaje de programación Go. Esta versión sustituye a todos
+los efectos a la versión anterior desarrollada dentro del marco de un curso
+ofrecido por uno de los autores para ACM Capítulo de Estudiantes en la Facultad de
+Informática de la Universidad Politécnica de Madrid en el año 2010.\\
+
+A través de los distintos capítulos, epígrafes y anexos se pretende iniciar al
+lector en el lenguaje de programación Go, desarrollado por Google
+\texttrademark, realizando una suave curva de iniciación e incluyendo una gran
+cantidad de ejemplos explicativos, así como referencias a la documentación
+oficial y herramientas que han sido también traducidas por los autores de este
+libro.
+
+El libro está dirigido a aquellas personas y programadores que tengan inquietud
+por aprender este nuevo lenguaje de programación y que tienen una cierta base en
+el mundo de la programación.
+
+\section{¿Qué es Go?}
+
+Go es un lenguaje de programación que fue presentado el 11 de Noviembre de 2009
+y que originalmente estaba orientado a la programación de sistemas pero que ha
+terminado siendo un lenguaje de programación de propósito general.\\
+
+Según la página oficial \cite{Golang} es un lenguaje
+expresivo, concurrente y que tiene recolector de basura. Además, presume de ser un
+lenguaje simple, rápido, seguro, divertido y \emph{open
+source}\footnote{Que el lenguaje sea \emph{Open Source} implica que cualquier
+persona puede realizar modificaciones en el lenguaje o implementar nuevas
+librerías que sean distribuidas como parte del mismo.}.\\
+
+Go sigue una sintaxis bastante habitual en los lenguajes de programación más
+usados, por lo que si se ha programado antes en C o Java la curva de aprendizaje
+será mucho más suave.\\
+
+Las principales características de Go son:
+
+\begin{itemize}
+	\item Es un lenguaje compilado muy, muy rápido.
+	\item Usa una codificación UTF-8 para todos los ficheros fuente, es decir, permite usar
+caracteres latinos, chinos, etc.  
+	\item Usa tipado fuerte y memoria virtual segura.
+	\item Posee punteros, pero no aritmética de los mismos.
+	\item Es un lenguaje 100\% concurrente.
+	\item Es Open Source, con lo que cualquier persona puede colaborar en su desarrollo
+aportando ideas o implementando nuevas librerías.
+	\item Por este último punto, posee una gran cantidad de librerías como, por
+	ejemplo, un servidor web empotrado en el propio lenguaje.
+\end{itemize}
+
+\section{¿Quién lo desarrolla?}
+
+Go es un proyecto promovido por cinco personas: Rob Pike, Robert Griesemer y Ken
+Thompson, en primera instancia, a los que se unieron posteriormente Russ Cox
+e Ian Lance Taylor. Todos los anteriormente citados, forman parte de
+Google\texttrademark. Varios de ellos desarrollaron el Sistema Operativo
+\emph{Plan 9} y han retomado muchas de las ideas originales para la creación
+de este nuevo lenguaje de programación.
+
+\section{¿Por qué crear un nuevo lenguaje?}
+
+El lector podrá preguntarse cuál es la razón de crear un nuevo lenguaje de
+programación, existiendo ya una gran variedad de lenguajes que permiten
+desarrollar las técnicas de los grandes paradigmas de programación\cite{PVanRoy}.\\
+
+Para empezar, el mundo informático ha avanzado enormemente en la última década,
+a la par que no han aparecido nuevos lenguajes de programación que resuelvan las
+nuevas casuísticas, como la programación web paralela o los problemas de
+computación de altas prestaciones.\\
+
+Actualmente, nos podemos encontrar las siguientes problemáticas que Go trata de
+resolver de una manera eficiente:
+
+\begin{itemize} 
+	\item Los ordenadores son mucho más rápidos, pero no así el desarrollo de software. 
+	\item Los sistemas software tienen una gran dependencia, por lo que a la
+	hora de compilar es importante realizar un análisis eficiente de las
+	dependencias entre los distintos ficheros, algo que no ocurre en los
+	actuales ``ficheros de cabecera'' de C.
+	\item Existe una tendencia creciente al uso de lenguajes de tipado dinámico,
+	como Python y Javascript.
+	\item La recolección de basura o la computación paralela, no están soportadas
+	adecuadamente por los lenguajes de sistemas más populares.
+	\item El aumento del número de núcleos en los ordenadores, ha provocado
+	confusión y quebraderos de cabeza respecto a la programación concurrente y paralela. 
+\end{itemize}
+
+\section{Recursos}
+
+Pese a que Go es un lenguaje moderno, ya existen numerosos sitios
+de información sobre el lenguaje, aunque no siempre son fáciles de encontrar
+debido a que el término ``Go'' es muy común en inglés. Por ello, la mayoría de
+los desarrolladores de Go realizan búsquedas utilizando el término
+\emph{golang}, que devuelve más y mejores resultados.
+
+	\subsection{golang.org}
+	
+	El sitio web oficial del lenguaje, conviene recordar su dirección:
+	\url{http://golang.org}. Toda la información que exista sobre el
+	lenguaje se puede encontrar ahí, incluyendo enlaces a documentación externa
+	aportada por miembros de la comunidad.\\
+	
+	Como curiosidad, cabe comentar que la propia página web está hecha en Go,
+	utilizando el servidor web empotrado y una serie de templates HTML que trae
+	``de serie''. A continuación, un repaso rápido a los sitios más importantes
+	dentro de la página oficial:
+	
+	\begin{description} 
+		\item[http://golang.org/doc] Acceso al listado de los ficheros de documentación.
+		\item[http://golang.org/cmd] Acceso a la documentación sobre los comandos que pueden usarse.
+		\item[http://golang.org/pkg] Acceso a la documentación de todos los paquetes existentes en Go.
+		\item[http://golang.org/src] Acceso al código fuente de distintos
+		ficheros de apoyo.
+	\end{description}
+	
+	\subsection{blog.golang.org}
+
+	El blog oficial de los desarrolladores del lenguaje. En él se van
+	introduciendo entradas en las que se explican distintos aspectos del
+	lenguaje de forma detallada, así como noticias que estén relacionadas con
+	Go.
+
+	\subsection{A tour of Go}
+
+	En la dirección \url{http://go-tour.appspot.com} se encuentra una magnífica
+	herramienta que permite introducir al programador en el lenguaje siguiendo
+	un tutorial paso por paso. Esa es la versión original en inglés, pero se
+	puede encontrar una versión traducida por los autores de este libro en
+	\url{http://go-tour-es.appspot.com}
+
+	\subsection{Lista de correo Go Nuts}
+	
+	La lista oficial de correo de Go se puede encontrar en la siguiente
+	dirección:\\ \url{http://groups.google.com/group/golang-nuts}.
+	Podrás darte de alta, ya que es una lista abierta, y recibir y enviar
+	correos con todas las dudas que te surjan.
+
+	\subsection{@go\_nuts}
+
+	Existe una cuenta oficial del lenguaje en Twitter:
+	\url[http://www.twitter.com/go\_nuts]{@go\_nuts} que suele publicar
+	contenido interesante sobre Go.
+
+	\subsection{\#go-nuts}
+	
+	Existe un canal de chat oficial en IRC para discutir acerca del lenguaje. Si
+	quieres realizar una sesión \emph{live} sobre Go, entra en el canal
+	\textbf{\#go-nuts} en el servidor \url{irc.freenode.net}.
+	
+	\subsection{Gestor de errores}
+	
+	Hay una página dedicada a gestionar todos los posibles errores del lenguaje,
+	para ser así resueltos de forma eficiente. Es una página web pública y se
+	puede encontraren: \url{http://code.google.com/p/go/issues/list}.
+	
+	\subsection{http://go-lang.cat-v.org/}
+	
+	Un sitio web mantenido a partir de todas las aportaciones de la gente
+	a través de la lista de correo oficial. Contiene muchas librerías
+	actualmente en desarrollo, ports del lenguaje a otros entornos, y sobre
+	todo, archivos de coloreado de código fuente para una gran cantidad de
+	programas de edición de texto.	
+
+\section{¿Cómo instalar Go?}
+
+Para instalar todas las librerías de Go y las herramientas propias del lenguaje,
+hay que seguir unos sencillos pasos. En las próximas dos secciones se podrá ver
+cómo instalarlo en sistemas UNIX y en sistemas Windows.
+
+\subsection{Instalación en sistemas UNIX}
+
+	Originalmente Go fue lanzado de manera exclusiva para sistemas UNIX. Aquí se
+	describen los pasos necesarios para su instalación tanto en entornos Linux
+	como Mac OS X y otros derivados de UNIX.
+
+	Comenzamos con la inicialización de las variables de entorno necesarias para
+	que la instalación se realice de forma correcta. Esta inicialización debería
+	realizarse en ficheros de configuración dependientes del tipo de terminal
+	usado, siendo para bash típicamente el fichero \emph{.bashrc}.
+
+	\begin{enumerate} 
+		\item Inicializar la variable \$GOROOT que indica el directorio raíz de Go. 
+		Típicamente es el directorio \$HOME/go, aunque puede usarse cualquier otro.
+		\item Inicializar las variables \$GOOS y \$GOARCH. Indican la
+		combinación de Sistema Operativo y Arquitectura utilizada. Los posibles
+		valores son los que se observan en la tabla \ref{Tabla_entorno}.
+	
+		\begin{table}[] 
+			\begin{center} 
+				\begin{tabular}{ccc} 
+					\textbf{\$GOOS}	& \textbf{\$GOARCH} & \textbf{SO y Arquitectura}\\
+					\hline 
+					darwin & 386 & Mac OS X 10.5 o 10.6 -  32-bit x86\\
+					darwin & amd64 & Mac OS X 10.5 o 10.6 - 64-bit x86\\ 
+					freebsd & 386 & FreeBSD - 32-bit x86\\
+					freebsd & amd64	& FreeBSD - 64-bit x86\\
+					linux & 386 & Linux - 32-bit x86\\ 
+					linux & amd64 & Linux - 64-bit x86\\
+					linux & arm & Linux - 32-bit arm\\
+					nacl & 386 & Native Client - 32-bit x86\\
+				\end{tabular} 
+			\end{center}
+			\caption{Tabla de valores de \$GOOS y \$GOARCH.\label{Tabla_entorno}} 
+		\end{table}
+	
+		\item Inicializar la variable \$GOBIN (opcional), que indica dónde serán
+		instalados los binarios ejecutables. Por defecto es \$GOROOT/bin. Tras la
+		instalación, es conveniente agregarla al \$PATH, para poder usar las
+		herramientas desde cualquier directorio. 
+	\end{enumerate}
+
+	\nota{Hay que tener en cuenta que las variables \$GOOS y \$GOARCH
+	indican el sistema contra el que se va a programar, no el sistema sobre el que
+	se está programando, que estará definido por la variable \$GOHOSTOS, que
+	aunque típicamente sea el mismo, no tiene por qué serlo.
+	Es decir, estaremos todo el rato realizando una compilación
+	cruzada.\footnote{Una compilación cruzada es aquella que se realiza cuando
+	los ficheros binarios generados van a ser ejecutados en una máquina que
+	posee una Arquitectura o Sistema Operativo distinto a la máquina sobre la
+	que se desarrolla.}}
+
+	Todo lo anterior se resume editando el fichero .bashrc, o cualquiera
+	equivalente, añadiendo al final del fichero las siguientes líneas, con la
+	configuración correcta:
+
+\begin{lstlisting}[numbers=none]
+export GOROOT=$HOME/go
+export GOARCH=amd64
+export GOOS=linux
+export GOBIN=$GOROOT/bin
+\end{lstlisting}
+
+	Para bajarse las herramientas del repositorio, hay que tener instalado mercurial
+	(tener el comando \emph{hg}). Si no se tiene instalado mercurial, se puede
+	instalar con el siguiente comando:
+
+\begin{lstlisting}[numbers=none]
+$ sudo easy_install mercurial
+\end{lstlisting}
+
+	Si no se consigue instalar, conviene visitar la página oficial de descarga de
+	mercurial.\footnote{http://mercurial.selenic.com/wiki/Download}\\
+
+	Tras asegurarnos de que la variable \$GOROOT apunta a un directorio que no
+	existe o que se encuentre vacío, hacemos un \emph{checkout} del repositorio
+	con el comando:
+
+\begin{lstlisting}[numbers=none]
+$ hg clone -r release https://go.googlecode.com/hg/ $GOROOT
+\end{lstlisting}
+
+	Una vez que nos hemos bajado todos los ficheros necesarios, hay que instalar Go.
+	Para ello hay que compilar el código fuente que nos hemos descargado
+	y necesitaremos una serie de herramientas. A saber:
+
+	\begin{itemize}
+		\item GCC
+		\item La biblioteca estándar de C
+		\item Bison
+		\item GNU make (versión $>=$ 3.81)
+		\item awk
+		\item ed
+	\end{itemize}
+
+	En entornos Mac OS X estas herramientas se pueden conseguir instalando el
+	paquete XCode\cite{XCode}.
+
+	El entornos Linux la instalación de estos paquetes dependerá de la
+	distribución utilizada. En distribuciones basadas en Debian, se puede
+	ejecutar el siguiente comando:
+
+\begin{lstlisting}[numbers=none]
+$ sudo apt-get install awk bison gcc libc6-dev ed make
+\end{lstlisting}
+
+	Para realizar la compilación e instalación de Go en base a las variables de
+	entorno que definimos anteriormente, basta con ejecutar:
+
+\begin{lstlisting}[numbers=none]
+$ cd $GOROOT/src
+$ ./all.bash
+\end{lstlisting}
+
+	Si la ejecución de \emph{all.bash} funciona correctamente, finalizará
+	imprimiendo como últimas líneas:
+
+\begin{lstlisting}[numbers=none]
+--- cd ../test
+N known bugs; 0 unexpected bugs
+
+ALL TEST PASSED
+
+---
+Installed Go for linux/amd64 in /home/go.
+Installed commands in /home/go/bin.
+The compiler is 6g.
+\end{lstlisting}
+
+	donde N es un número que varía de una distribución a otra de Go, indicando bugs
+	conocidos pero que no han podido ser arreglados. En la sección
+	\ref{manteniendose} hablaremos sobre las distintas distribuciones de
+	Go.
+
+	Además, si estamos en Mac OS X habrá que ejecutar el comando
+	\emph{./sudo.bash} para instalar los depuradores.
+
+	\subsection{Instalación en sistemas Windows}
+
+	La mejor forma de conseguir tener un entorno de desarrollo de Go en Windows es
+	utilizar el entorno MinGW\cite{MinGW}. MinGW, de forma similar a Cygwin, simula
+	un entorno tipo UNIX en sistemas operativos Windows, pero no intenta emular un
+	entorno POSIX, sino que en su lugar utiliza el \emph{runtime} de C y la API de
+	Windows\cite{MiekGieben}.
+
+	Se puede por tanto instalar siguiendo los siguientes pasos, extraídos de
+	\cite{MiekGieben}:
+
+	\begin{itemize}
+		\item Descargamos la última versión de MinGW de \cite{MinGW}.
+		\item Extraemos los ficheros en nuestro disco C:\textbackslash.
+		\item Aseguramos que los ficheros están en C:\textbackslash MingGW.
+		\item Creamos un fichero dentro del directorio C:\textbackslash MinGW
+		llamado \emph{setup.sh}, con el siguiente contenido:
+
+\begin{lstlisting}[numbers=none]
+export GOROOT=/c/go
+export GOBIN=$GOROOT/bin
+export PATH=$PATH:$GOBIN
+\end{lstlisting}
+
+		\item Ejecuta el acceso directo \emph{mintty} para lanzar una ventana de
+		terminal.
+		\item Cada vez que ejecutemos \emph{mintty}, podemos inicializar
+		fácilmente nuestro entorno de desarrolo de Go ejecutando:
+
+\begin{lstlisting}[numbers=none]
+$ . ./setup.sh
+\end{lstlisting}
+
+		\item Descargamos la última versión estable de Go con el siguiente
+		comando:
+
+\begin{lstlisting}[numbers=none]
+$ hg clone -r release https://go.googlecode.com/hg/ $GOROOT
+\end{lstlisting}
+
+		\item Al igual que en la versión UNIX, compilamos el código fuente para
+		tener todo listo.
+
+\begin{lstlisting}[numbers=none]
+$ cd $GOROOT/src
+$ ./all.bash
+\end{lstlisting}
+
+	Si la ejecución de \emph{all.bash} funciona correctamente, finalizará
+	imprimiendo como últimas líneas:
+
+\begin{lstlisting}[numbers=none]
+--- cd ../test
+N known bugs; 0 unexpected bugs
+
+ALL TEST PASSED
+
+---
+Installed Go for linux/amd64 in /home/go.
+Installed commands in /home/go/bin.
+The compiler is 6g.
+\end{lstlisting}
+	\end{itemize}
+
+\section{Manteniéndose al día\label{manteniendose}}
+
+Go es un lenguaje moderno que se actualiza periódicamente. Para mantenerse al
+día y conseguir que tu distribución funcione correctamente, hay que actualizar
+cada vez que salga una nueva distribución, que se anuncia en la lista de correo
+oficial de Go. Para actualizar a la última distribución disponible, hay que
+ejecutar los siguientes comandos:
+
+\begin{lstlisting}[numbers=none]
+$ cd $GOROOT/src
+$ hg pull
+$ hg update release
+$ ./all.bash
+\end{lstlisting}
+
+En Go existen diferentes distribuciones dependiendo del tipo de usuario al que
+van dirigidas. Este libro está basado en la última versión release (r.60.3), que
+es la recomendada para el público general. Las distribuciones de Go se
+clasifican de la siguiente forma:
+
+\begin{description}
+	\item[Release] Es la versión más estable de Go. Se actualiza aproximadamente
+	cada dos meses y es la recomendada para el público general.
+	\item[Weekly] Es la versión más utilizada por los desarrolladores de
+	bibliotecas del lenguaje. Se actualiza semanalmente y es propensa a errores,
+	por lo que no es la más aconsejable salvo que desarrolles módulos del propio
+	lenguaje.
+	\item[Tip] Es la versión para los arriesgados. La que se actualiza con cada
+	cambio realizado en el lenguaje y la más propensa a errores. Su uso está
+	totalmente desaconsejado salvo que se necesiten los últimos cambios en el
+	nucleo del lenguaje.
+\end{description}
+
+Si se quiere cambiar de una distribución a otra, se puede realizar mediante el
+comando \emph{hg update distro}, donde \emph{distro} será el nombre de la
+distribución que se quiera utilizar.
+
+\newpage

@@ -1,0 +1,934 @@
+% Capítulo 2: Características y tipos básicos
+\chapter{Características y tipos básicos}
+
+En este capítulo el lector se introducirá de lleno en todos los aspectos básicos
+del lenguaje, desde sus principales características a los tipos más básicos,
+donde además podrá ver cómo compilar los ficheros fuente utilizando los
+compiladores nativos de Go, así como mediante el uso de Makefiles.
+
+\section{Nuestro primer programa: ¡Hola Mundo!}
+
+Sin más preámbulos, y después de contar un poco qué es Go y por qué se ha
+realizado este manual, vamos a ver nuestro primer programa en Go: el típico
+¡Hola mundo!
+
+\codigo{Hola Mundo}{holamundo}{caracteristicas/holamundo.go}
+
+\section{Garbage Collector\label{Garbage Collector}}
+
+Go posee un Garbage Collector - Recolector de Basura - que identifica cuándo se
+deja de utilizar una variable o una instancia concreta, y libera la memoria
+asociada de forma automática.\\
+
+Actualmente, el compilador de Go posee un Garbage Collector muy simple pero
+efectivo, basado en un ``marcado de barrido'', es decir, marca aquello que puede
+ser eliminado, y cuando se activa, se borra.\\
+
+Está en desarrollo un Garbage Collector mucho más avanzado basado en las ideas
+del Garbage Collector de IBM\texttrademark
+\cite{IBMGC}. Esta nueva
+implementación pretende ser muy eficiente, concurrente y de baja latencia, con
+lo que nada más detectar que algo sobra, se elimine.
+
+\section{Las bases del lenguaje}
+
+Go está basado en una sintaxis bastante típica en los lenguajes de programación
+modernos, con lo que cualquier conocimiento previo de lenguajes como C, serán de
+mucha utilidad para seguir el libro.\\
+
+Los ficheros fuente están codificados en UTF-8, lo que implica la posibilidad de
+usar cualquier tipo de caracteres tanto latinos, como árabes o chinos en un
+mismo fichero fuente, sin ningún tipo de limitación. Los delimitadores de las
+declaraciones - o lo que es lo mismo, espacios en blanco no significativos - son
+tres: espacios, tabulaciones y saltos de línea.\\
+
+Los identificadores de cualquier variable en un programa escrito en Go, deben de
+ser alfanuméricos, incluyendo el caracter `\_', teniendo en cuenta que las
+letras y números deben ser aquellas definidas por
+Unicode\footnote{\url{http://unicode.org}.}.
+
+\section{Comentarios}
+
+Los comentarios son exactamente los mismos que en C++. Para obtener un
+comentario de una línea, utilizamos la combinación de caracteres \emph{//}, mientras
+que para un comentario de varias líneas, se usa la combinación \emph{/* */}.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none, caption=Comentarios correctos,
+label=comentarioscorrectos]
+// Esto es un comentario de una linea
+/* Esto es un comentario que ocupa mucho
+   y se parte en dos lineas. */
+\end{lstlisting}
+\end{minipage}
+
+Hay que recordar, que los comentarios de varias líneas, no admiten anidamiento,
+así pues, el siguiente comentario sería erróneo:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none, caption=Comentario incorrecto,
+label=comentarioincorrecto]
+/* Esto es un comentario que ocupa varias lineas incorrecto.
+   /* Con otro comentario anidado de varias lineas, que no es posible hacer.
+   	*/
+ */
+\end{lstlisting}
+\end{minipage}
+
+\section{Literales}
+
+Entendemos por \emph{literales} todas aquellas expresiones que representan un
+valor concreto, ya sea en forma de cadena de caracteres o en forma numérica.\\
+
+Existen tres tipos de valores literales en Go:
+
+\begin{itemize}
+	\item \textbf{Números:} Son aquellos números literales que representan un
+	valor concreto sin necesidad de indicar su tamaño.
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+98
+0x0FF
+2.643e5
+\end{lstlisting}
+\end{minipage}
+
+	\item \textbf{Strings:} Son aquellas cadenas de caracteres que pueden
+	representarse en UTF-8 (o cualquier otra representación Unicode). También
+	pueden representarse bytes con \emph{\textbackslash\textbackslash xNN} con
+	2 dígitos o con \emph{\textbackslash\textbackslash 012} con 3 dígitos.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+``Hola mundo\n''
+``\\xFF''	// 1 byte
+``\\u00FF''	// 1 caracter unicode, 2 bytes en UTF-8
+\end{lstlisting}
+\end{minipage}
+
+	\item \textbf{Strings puros:} Son cadenas de caracteres que se imprimen tal
+		cual son escritas en el código fuente, sin escapar ningún carácter. Se
+		representan poniendo la cadena entre dos acentos graves ` \`\  '.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+`\n\.abc\t\`  ==  ``\\n\\.abc\\t\\''
+\end{lstlisting}
+\end{minipage}
+\end{itemize}
+
+\section{Vistazo rápido de la sintaxis\label{sintaxis}}
+
+La sintaxis de Go es una sintaxis muy familiar si se ha programado antes, aunque
+tiene sus propias características y peculiaridades que conviene conocer, pero en
+poco tiempo el lector debería reconocer este tipo de sintaxis.\\
+
+A la hora de declarar una variable o un tipo se utiliza la palabra reservada
+\emph{var}, seguida del identificador de la variable y terminando por el tipo de
+la variable.\\
+
+Veamos esto con un ejemplo, definiendo tres tipos de variables y un tipo \emph{Struct}.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+var a int         // a es un entero
+var b, c *int     // b y c son punteros a enteros
+var d []int       // d es un array de enteros
+
+// S es una estructura con dos atributos enteros.
+type S struct {
+    a, b int
+}
+
+var miVar S 	// miVar es una variable de tipo S
+\end{lstlisting}
+\end{minipage}
+
+Las estructuras de control del programa, también nos resultarán familiares si
+hemos trabajado con lenguages imperativos como C o Java, puesto que su
+estructura es muy similar. Veamos un ejemplo con un \emph{if} y un \emph{for}.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+if a == b {
+    fmt.Print("a y b son iguales")
+} else {
+    fmt.Print("a y b son distintos")
+}
+
+for i = 0; i < 10; i++ {
+	miVar++
+}
+\end{lstlisting}
+\end{minipage}
+
+\nota{En Go los paréntesis en las condiciones del \emph{if} o del
+\emph{for} no hay que ponerlas. Sí que son siempre necesarias las llaves, que no
+pueden ser omitidas. Además, hay que tener en cuenta que la llave de apertura de
+un \emph{if} debe ir en la misma linea que la sentencia, y que el \emph{else},
+si lo hubiera, tiene que ir emparejado en la misma linea que el cierre de bloque
+del \emph{if}. En la sección \ref{if} en la página \pageref{if} se verá cómo es
+la estructura correcta de estas sentencias de control.}
+
+Por último hay que observar en el código anterior la ausencia del carácter `;' como
+indicativo del final de sentencia.\\
+
+Cuando Go fue creado, los puntos y coma eran obligatorios en todas las
+instrucciones. Finalmente, se acordó que su uso sería opcional, y que sería el
+propio compilador el que añadiría los puntos y coma al final de las sentencias
+que considerara válidas. Aún así, el uso de puntos y coma en ciertas estructuras
+es obligatorio, como puede ser en la separación de las distintas cláusulas de un
+bucle \emph{for}.\\
+
+Este esquema sigue las pautas acerca de este tipo de delimitadores del lenguaje
+\emph{BCPL}, precursor de \emph{B} y por lo tanto de \emph{C}, y que Go ha decidido
+adoptar.\\
+
+Así pues, resumiendo acerca del uso de los puntos y coma:
+
+\begin{itemize}
+	\item Son opcionales en todos los programas al final de una sentencia,
+	aunque deberían \textbf{no} ponerse. Únicamente son obligatorios a la
+	hora de separar los elementos en la cláusula de un bucle \emph{for}
+	o elementos en un \emph{if}.
+	\item El compilador introducirá automáticamente los puntos y coma, por ello
+	no es conveniente ponerlos, al final de una línea no vacía, si lo último que
+	se encuentra es:
+		\begin{itemize}
+			\item Un identificador o un literal.
+			\item Alguna de las palabras reservadas: break, continue,
+			fallthrough o return.
+			\item Alguno de los siguientes tokens: $++$, $--$, ), ], \}.
+		\end{itemize}
+		\item Se pueden poner los puntos y coma para separar instrucciones en
+		una misma línea, pudiendo ser omitido antes de ')' o de '\}'.
+\end{itemize}
+
+\section{Tipos}
+
+Go posee únicamente tres tipos básicos: Números, Booleanos y Cadenas de
+caracteres.
+
+	\subsection{Números}
+
+	Existen tres tipos numéricos: Enteros, enteros sin signo y números
+	flotantes.\\
+
+	Cada uno de estos tipos tiene asociadas una serie de variantes dependiendo
+	del número de bits en el que sea almacenado. El cuadro \ref{tiposnumericos}
+	muestra un resumen con los tipos numéricos existentes.\\
+
+	\begin{table}[htb]
+		\begin{center}
+			\begin{tabular}{ccc}
+			\textbf{Enteros} & \textbf{Enteros sin signo} & \textbf{Flotantes}\\
+			\hline
+			int & uint & \\
+			int8 & uint8 = byte & \\
+			int16 & uint16 & \\
+			int32 & uint32 & float32\\
+			int64 & uint64 & float64
+			\end{tabular}
+		\end{center}
+	\caption{Tabla de tipos numéricos}
+	\label{tiposnumericos}
+	\end{table}
+
+	También existe el tipo \emph{uintptr}, que sirve para almacenar número
+	enteros lo suficientemente grandes como para necesitar un puntero.\\
+
+	Como puede deducirse de la tabla \ref{tiposnumericos}, el número que acompaña a cada
+	nombre de tipo, es el número de bits que ocupa en memoria. Así, podemos
+	observar que los números flotantes no tienen representaciones válidas con
+	8 y 16 bits.\\
+
+	Los tipos que no tienen asociado ningún número, \emph{int} y \emph{uint},
+	se representan con un número de bits igual al ancho de la
+	palabra de la máquina en la que se ha compilado el código. De esta forma se
+	puede llegar a pensar que en un ordenador de 32-bit, los tipos \emph{int}
+	e \emph{int32} son equivalentes, pero \textbf{no} es así. \textbf{Todos
+	los tipos de la tabla son distintos}.\\
+
+	Debido a que Go es un lenguaje con tipado fuerte\footnote{\textbf{Tipado
+	fuerte}: Un lenguaje tiene tipado fuerte cuando todas las variables tienen
+	que declararse con un tipo asociado, y no puede cambiar su tipo en tiempo de
+	ejecución.}, no existe conversión implícita de tipos, aunque posteriormente
+	veremos cómo pueden realizarse conversiones explícitas.
+
+	\subsection{Bool}
+
+	El tipo \emph{bool} define el tipo booleano usual, con dos constantes
+	predefinidas que son: \emph{true} y \emph{false}.\\
+
+	Hay que tener en cuenta, que a diferencia de otros lenguajes, en Go los
+	\emph{punteros} y los \emph{enteros} \textbf{no son booleanos}.
+
+	\subsection{String}
+
+	El tipo \emph{string} representa un conjunto invariable de bytes, o lo que es
+	lo mismo, texto tal y como lo entendemos. Los strings están delimitados por
+	su longitud, no por un carácter nulo como suele ocurrir en la mayoría de
+	lenguajes. Esto hace que el tipo \emph{string} sea mucho más seguro y eficiente.\\
+
+	Toda cadena de caracteres representada por el lenguaje, incluidas las
+	cadenas de caracteres literales, tienen como tipo \emph{string}.\\
+
+	Como se ha dicho en el primer párrafo, y al igual que ocurre con los números
+	enteros, los strings son invariables. Esto significa, que se pueden
+	reasignar variables de tipo \emph{string} para que contengan otros
+	valores, pero los valores de un literal de este tipo \textbf{no se pueden
+	modificar}.\\
+
+	De la misma forma que 5 siempre es 5, "Hola" siempre es "Hola".\\
+
+	En otros lenguajes es posible modificar las cadenas de caracteres, ya sea
+	dentro de una variable o de una constante, realizando un manejo explícito de
+	la memoria. En Go y gracias a depender de su longitud, un string es
+	invariable.\\
+
+	Pese a que todo esto puede parecer incoherente o muy engorroso, las
+	librerías de Go poseen un gran soporte para la manipulación de las cadenas
+	de caracteres.
+
+\section{Operadores}
+
+	Los operadores en Go, como no podía ser de otra forma, son bastante comunes
+	y la mayoría son utilizados en otros lenguajes. Existen operadores binarios,
+	que reciben dos operandos, y operadores unarios.
+
+	Tenemos varios tipos de operadores, que se pueden clasificar en 4 categorías
+	distintas:
+
+	\begin{itemize}
+		\item Operadores aritméticos
+		\item Operadores relacionales
+		\item Operadores lógicos
+		\item Operadores a nivel de bit
+	\end{itemize}
+
+	En los siguientes apartados vamos a ver cuáles son los operadores de los que
+	disponemos y cuál es su precedencia a la hora de ser evaluados.
+
+	\subsection{Operadores aritméticos}
+
+	Los operadores aritméticos son aquellos que nos permiten realizar
+	operaciones aritméticas sobre dos operandos. Son operadores que permiten
+	realizar operaciones de suma, resta, multiplicación, etc.
+
+	\begin{table}[htb]
+		\begin{center}
+			\begin{tabular}{ccccc}
+				\textbf{Precedencia} & \textbf{Operador} & \textbf{Acción}
+				& \textbf{Tipos de datos} & \textbf{Ejemplos}\\
+				\hline
+				2 & * & Multiplicación & enteros, reales, valores complejos & y = 2 * x\\
+				2 & / & División & enteros, reales, valores complejos & y = x / 2\\
+				2 & \ \% & Módulo & enteros & y = 3 \% 2\\
+				2 & \& & AND a nivel de bit & enteros & y = 1 \& 1\\
+				2 & \&\textasciicircum & Bit clear & enteros & y \& 3\\
+				2 & $<<$ & Desplazamiento a la izquierda & entero $<<$ entero
+				  sin signo & y = 2 $<<$ 1\\
+				2 & $>>$ & Desplazamiento a la derecha & entero $>>$ entero sin
+				  signo & y = 2 $>>$ 1\\
+				1 & + & Suma & enteros, reales, valores complejos, strings & y = 3 + y\\
+				1 & - & Resta & enteros, reales, valores complejos & y = 2 - x\\
+				1 & \textbar & OR a nivel de bit & enteros & y = 1 \textbar\ 0\\
+				1 & \textasciicircum & XOR a nivel de bit & enteros & y = 1 \textasciicircum 1\\
+				\hline
+			\end{tabular}
+		\end{center}
+		\caption{Tabla de operadores aritméticos}
+		\label{tabopar}
+	\end{table}
+
+	La prioridad de los operadores determina cómo serán evaluados en una
+	expresión sin paréntesis que delimite esa prioridad. Así pues, si hay dos
+	operandos de distinta prioridad, se evaluará primero la operación de mayor
+	prioridad. Si los operandos existentes son de la misma prioridad, la
+	evaluación se realizará de izquierda a derecha.\\
+
+	La columna \emph{Tipos de datos} de la tabla \ref{tabopar} indica sobre qué
+	tipos de datos se pueden utilizar estos operadores.\\
+
+	Los operadores \emph{+}, \emph{-} y \emph{\textasciicircum} pueden ser
+	utilizados de forma unaria, recibiendo un único operando. Veamos esto con un
+	pequeño ejemplo:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none,caption=Ejemplo de operandos aritméticos unarios,label=oparitunarios]
++x 		// Implica 0 + x, o lo que es lo mismo, indicar que x es positivo.
+-x 		// Implica 0 - x, o lo que es lo mismo, indicar que x es negativo.
+^x 		// Es el complemento de x. Transforma los bits de x de 1 a 0 y los que estén en 0 a 1.
+\end{lstlisting}
+\end{minipage}
+
+	\subsection{Operadores relacionales}
+
+	Además de los operadores aritméticos, necesitamos una serie de operadores
+	que nos permitan comparar dos valores para saber cuál es mayor que otro, si
+	son iguales, etc. En este caso, los operadores relacionales nos aportan esta
+	funcionalidad.\\
+
+	En el caso de los operadores aritméticos existe una prioridad que determina
+	qué operación se evalúa antes, pero eso no es necesario para los operadores
+	relacionales que siempre se evaluarán de izquierda a derecha.\\
+
+	Los operadores relacionales existentes en Go son los que se observan en la
+	tabla \ref{oprelacionales}.
+
+	\begin{table}[!htb]
+		\begin{center}
+			\begin{tabular}{cc}
+				\textbf{Operador} & \textbf{Acción}\\
+				\hline
+				$<$ & Menor que\\
+				$>$ & Mayor que\\
+				$<$= & Menor o igual que\\
+				$>$= & Mayor o igual que\\
+				$=$$=$ & Igual\\
+				!= & Distinto\\
+				\hline
+			\end{tabular}
+		\end{center}
+		\caption{Tabla de operadores relacionales}
+		\label{oprelacionales}
+	\end{table}
+
+	El resultado de una operación con operadores relacionales es siempre un
+	\emph{Bool}, es decir, un valor \emph{true} o \emph{false}.
+
+	\subsection{Operadores lógicos}
+
+	Los operadores lógicos son aquellos que nos permiten realizar operaciones
+	entre dos conjuntos de elementos, como se realiza en la lógica formal. De
+	esta forma podremos evaluar una expresión en base a si se cumplen dos
+	conjuntos de condiciones, si se cumple uno de ellos, o si no se cumple un
+	conjunto dado.\\
+
+	Los operadores lógicos en Go son:
+
+	\begin{table}[htb]
+		\begin{center}
+			\begin{tabular}{ccc}
+				\textbf{Prioridad} & \textbf{Operador} & \textbf{Acción}\\
+				\hline
+				3 & ! & Negación\\
+				2 & \&\& & Conjunción (Y)\\
+				1 & \textbar\textbar & Disyunción (O)\\
+				\hline
+			\end{tabular}
+		\end{center}
+		\caption{Tabla de operadores lógicos}
+	\end{table}
+
+	\subsection{Operadores a nivel de bit}
+
+	Muchas veces es interesante poder manejar datos a nivel de bit\footnote{Un
+	bit es la unidad mínima de representación de un ordenador y toma valores
+	0 o 1.}	y realizar operaciones con ellos.
+
+	Los operadores a nivel de bit disponibles en Go son:
+
+	\begin{table}[htb]
+		\begin{center}
+			\begin{tabular}{ccc}
+				\textbf{Prioridad} & \textbf{Operador} & \textbf{Acción}\\
+				\hline
+				2 & $<<$ & Desplazamiento a la izquierda\\
+				2 & $>>$ & Desplazamiento a la derecha\\
+				2 & \& & AND a nivel de bit\\
+				2 & \&\textasciicircum & Bit clear (pone un bit a 0)\\
+				1 & \textbar & OR a nivel de bit\\
+				1 & \textasciicircum & XOR a nivel de bit\\
+				\hline
+			\end{tabular}
+		\end{center}
+		\caption{Tabla de operadores a nivel de bit}
+	\end{table}
+
+	\subsection{Asignaciones}
+
+	Las asignaciones son fáciles y se realizan al igual que en la mayoría de
+	lenguajes modernos. Para ello, se utiliza el operador `$=$'. Hay que
+	recordar, que el operador de igualdad en Go, es `$==$'.\\
+
+	Respecto a las asignaciones hay que tener en cuenta, que Go posee tres tipos
+	de asignaciones o asignaciones con tres tipos de características:
+
+	\begin{itemize}
+		\item \textbf{Asignaciones simples}: A una variable se le asigna un
+		valor constante o el valor de otra variable.
+		\item \textbf{Asignaciones múltiples}: A un grupo de variables se les
+		asignan	distintos valores simultáneamente.
+		\item \textbf{Asignaciones múltiples de	funciones}: Las funciones, como
+		veremos más adelante (sección \ref{funciones}), pueden devolver	valores
+		múltiples, que pueden ser ``recogidos'' por varias variables.
+	\end{itemize}
+
+	Veamos un ejemplo de lo anterior:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none,caption=Ejemplo de
+asignaciones,label=asig]
+a = 5
+b = a
+
+x, y, z = f(), g(), h()
+a, b = b, a
+
+nbytes, error := Write(buffer)
+
+// Nótese que nbytes y error estarían siendo declaradas
+// en ese instante (operador :=). Funciona igual para '='.
+\end{lstlisting}
+\end{minipage}
+
+	\subsection{Operadores de comunicación}
+
+	Como ya se ha mencionado en repetidas ocasiones, Go es un lenguaje muy
+	orientado a la programación concurrente y paralela. Este tipo de paradigmas
+	nos exige realizar operaciones de sincronización y comunicación entre
+	tareas, para cumplir el objetivo final.\\
+
+	Dada la simplicidad con la que se ha ideado el lenguaje existe un único
+	tipo de datos, los \emph{canales} o \emph{channels} que estudiaremos con más
+	profundidad en el la sección \ref{channels}.\\
+
+	Este tipo de datos tiene un operador especial \emph{flechita} $<-$ que
+	indica el sentido en el que se realiza la comunicación. Este operador recibe
+	dos operandos y, al menos, uno de ellos debe ser de tipo \emph{chan}. El
+	tipo de datos del otro operando dependerá de cómo se haya declarado el
+	canal, ya que los canales manejan tipos de datos concretos.\\
+
+	El operador $<-$ puede actuar de forma unaria, recibiendo un único
+	parámetro, en cuyo caso el parámetro debe de ser un canal e implica la
+	recepción del valor que almacene, descartándolo.\\
+
+	Veamos un ejemplo de declaración de canales y uso de este operador, aunque se podrán
+	ver más en la sección \ref{channels}.\\
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none,caption=Ejemplo de comunicación
+entre canales, label=opflechita]
+var c chan int 		// Declaramos un canal de números enteros
+c <- 1 				// Envía un 1 al canal
+
+v := <- c 			// Recibe el valor del canal (un 1 en este ejemplo), e inicializa v.
+<- c 				// Recibe el valor del canal, descartándolo
+\end{lstlisting}
+\end{minipage}
+
+	\subsection{Operadores de indirección}
+
+	Go, como otros muchos lenguajes, implementa como otros muchos lenguajes un
+	sistema de manejo eficiente de la memoria mediante los denominados
+	\emph{Punteros}.\\
+
+	Un puntero es, normalmente, una variable que apunta a una dirección de
+	memoria que, normalmente, ocupa otra variable. De esta forma podemos manejar
+	de manera mucho más eficiente el gasto de memoria de nuestro programa. En la
+	sección \ref{newvsmake} veremos cómo se crean punteros a estructuras de
+	datos complejos. Normalmente basta con referenciar un puntero a una variable
+	con los operandos que vamos a ver en esta sección.\\
+
+	El operando \emph{*} nos permite acceder a los datos apuntados por nuestra
+	variable de tipo puntero, mientras que el operador \emph{\&} permite conocer
+	cuál es la dirección de memoria de una variable o un valor determinado.
+	Vamos a verlo más claro con un ejemplo:\\
+
+\codigo{Ejemplo de operadores de
+indirección}{label=opindireccion}{caracteristicas/ejemplopuntero.go}
+
+	\subsection{Ejemplos}
+
+	Aunque se puede encontrar mucha más referencia sobre los operadores en
+	\cite{GoSpecOperators}, veamos en un cuadro resumen todos los operadores
+	binarios ordenados de mayor a menor precedencia.
+
+	\begin{table}[htb]
+		\begin{center}
+			\begin{tabular}{ccc}
+				\textbf{Precedencia} & \textbf{Operadores} & \textbf{Comentarios}\\
+				\hline
+				5 & * \ / \ \% \ $<<$ \ $>>$ \ \& \&\textasciicircum & \&\textasciicircum\ significa "bit clear"\\
+				4 & $+$ \ $-$ \ \textbar\ \ \textasciicircum & \textasciicircum\ significa "xor"\\
+				3 & $==$ \ !$=$ \ $<$ \ $<=$ \ $>$ \ $>=$ & \\
+				2 & \&\& & \\
+				1 & \textbar\textbar & \\
+			\end{tabular}
+		\end{center}
+		\caption{Tabla de operadores binarios}
+	\end{table}
+
+	En el siguiente ejemplo de código hay varios ejemplos de operaciones válidas.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none, caption=Operaciones válidas, label=ejops]
++x
+25 + 6*x[i]
+y <= f()
+^a >> b
+f() || g()
+x == y + 2 && <- chan_ptr > 0
+x &* 7     // x con los 3 bits inferiores a 0.
+fmt.Printf("\%5.2g\n", 2*math.Sin(PI/8))
+
+"Hola" + "," + "adios"
+"Hola, " + str
+\end{lstlisting}
+\end{minipage}
+
+	\subsection{Diferencias con C}
+
+	Los programadores de C que comiencen a programar en Go, se encontrarán
+	varios cambios en lo referente a los operadores, y que son de bastante
+	importancia.
+
+	\begin{itemize}
+		\item Go posee menos niveles de precedencia.
+		\item \textasciicircum\ sustituye a $\sim$, que pasdda de ser un ``or
+		exclusivo" binario, a ser unario.
+		\item $++$ y $--$ no son operadores de expresiones.
+
+			x$++$ es una instrucción, no una expresión;
+
+			*p$++$ es (*p)$++$, no *(p$++$).
+		\item \&\textasciicircum \ es un nuevo operador. Útil en expresiones
+		constantes.
+		\item $<<$, $>>$, etc. necesitan un contador de rotación sin signo.
+	\end{itemize}
+
+\section{Conversiones}
+
+Como ya se ha mencionado anteriormente, las conversiones entre distintos tipos
+deben realizarse de manera explícita, por lo que cualquier intento de conversión
+implícita fallará en tiempo de compilación.\\
+
+Así pues, y tal y como se mencionó al ver los tipos de datos numéricos,
+convertir valores de un tipo a otro es una conversión explícita, que se realiza
+como si fuera la llamada a una función. Veamos algún ejemplo:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+uint8(int_var)		// truncar a 8 bits
+int(float_var)		// truncar a a la parte entera
+float64(int_var)	// cambio a coma flotante de 64 bits
+\end{lstlisting}
+\end{minipage}
+
+También es posible realizar conversiones a \emph{string}, de manera que
+podemos realizar las siguientes operaciones, entre otras:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+string(0x1234)			// == "\u1234"
+string(array_de_bytes)	// bytes -> bytes
+string(array_de_ints)	// ints -> Unicode/UTF-8
+\end{lstlisting}
+\end{minipage}
+
+\section{Valores constantes y números ideales}
+
+Las constantes numéricas son ``números ideales": aquellos números que no tienen
+tamaño ni signo, y por lo tanto no tienen modificadores \emph{l}, \emph{u},
+o \emph{ul}.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+077 			// Octal
+0xFE8DACEFF 	// Hexadecimal
+1 << 100
+\end{lstlisting}
+\end{minipage}
+
+Existen tanto números ideales enteros como de coma flotante. La sintaxis del
+literal utilizado determinará su tipo en tiempo de compilación.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+1.234e5 	// float
+1e2 		// float
+630 		// int
+\end{lstlisting}
+\end{minipage}
+
+Los números constantes en coma flotante y los enteros pueden ser combinados
+según nos convenga. El tipo del resultado de las operaciones, así como las
+propias operaciones, dependerá del tipo de los números utilizados. Así pues
+tendremos:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+2*3.14 		// float: 6.28
+3./2 		// float: 1.5
+3/28 		// int: 1
+
+// Alta precisión:
+const Ln2 = 0,693147180559945309417232121458\
+			176568075500134360255254120680009
+
+const Log2E = 1/Ln2 	// mayor precisión
+\end{lstlisting}
+\end{minipage}
+
+\nota{Nótese la diferencia existente entre la imposibilidad de tener
+conversiones entre tipos implícita, que impide el lenguaje, y la conversión
+realizada en las operaciones, que sí que está definida. Esto es, a una variable
+de tipo \emph{int}, no se le puede asignar el valor de una variable de tipo
+\emph{float32} o \emph{float64}, sin una conversión de tipos previa, pero sí una
+constante que represente un número real.}
+
+La existencia de los números ideales tiene una serie de consecuencias, como la
+vista en la nota anterior. El lenguaje define y permite el uso de constantes sin
+una conversión explícita si el valor puede ser representado.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+var million int = 1e6 	// Variable int, constante float
+math.Sin(1)				// Pasamos un int, espera un float
+\end{lstlisting}
+\end{minipage}
+
+Las constantes deben ser representables en el tipo al que queremos asignarlas.
+Por ejemplo: \textasciicircum 0 es $-$1, que no es representable en el rango
+0$-$255.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+uint8(^0)		// Mal: -1 no es representable
+^uint8(0)		// OK
+uint8(350)		// Mal: 350 no es representable
+uint8(35.0)		// OK: 35.0 = 35
+uint8(3.5)		// Mal: 3.5 no es representable
+\end{lstlisting}
+\end{minipage}
+
+\section{Declaraciones}
+
+Como ya hemos comentado anteriormente, todas las declaraciones en Go van
+precedidas de una palabra clave (var, const, type, func), seguidas del nombre
+identificador que se quiera dar, más el tipo de datos en caso de ser una
+variable y, opcionalmente, de una expresión de inicialización.\\
+
+Los identificadores de variables, funciones, constantes, tipos, etc. se definen
+por una cadena de caracteres alfanuméricos (letras y números) incluyendo el
+carácter `\_'. La única restricción respecto a los identificadores es que no
+pueden comenzar con un número.\\
+
+Veamos algunos ejemplos de declaraciones en Go:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none, caption=Declaraciones, label=declaraciones]
+var i int = 0
+const PI = 22./7.
+type Punto struct {
+	x, y int
+}
+func suma (a, b int) int {
+	return a + b
+}
+\end{lstlisting}
+\end{minipage}
+
+Mucha gente se realiza la siguiente pregunta al ver por primera vez una
+declaración en Go: ¿Por qué está invertido el tipo y la variable? Es
+una cuestión de diseño del lenguaje, que otorga muchas facilidades para el
+compilador, pero que además permite tener una mayor legibilidad o definir varios
+punteros en una misma expresión sin olvidarse de añadir el carácter *. Por ejemplo:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+var p, q *int
+\end{lstlisting}
+\end{minipage}
+
+Además, las funciones son más cómodas de leer y son más consistentes con otras
+declaraciones. Más adelante iremos viendo más razones para la inversión del tipo
+respecto a otros lenguajes en la declaración.
+
+	\subsection{Variables}
+
+	Las variables en Go se declaran precedidas de la palabra reservada
+	\emph{var}.\\
+
+	Pueden tener un tipoi asociado, una expresión que inicialice la variable, o ambas
+	cosas. Las expresiones que inicialicen las variables deben encajar con las
+	variables y su tipo, ya que recordemos que Go es un lenguaje de tipado
+	fuerte.\\
+
+	Además, hay que tener en cuenta que podemos declarar varias variables de un
+	mismo o distintos tipos en la misma línea, separando los nombres de las
+	variables por comas.\\
+
+	Veamos algunos ejemplos:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none, caption=Declaraciones de variables,
+label=declvar]
+var i int
+var j = 365.245
+var k int = 0
+var l, k uint64 = 1, 2
+var entero, real, cadena = 1, 2.0, "Hola"
+\end{lstlisting}
+\end{minipage}
+
+	Dado que puede ser bastante tedioso estar escribiendo todo el rato la
+	palabra reservada \emph{var}, Go posee una característica muy interesante,
+	que permite definir varias variables agrupadas por paréntesis
+	y separándolas por puntos y coma. He aquí uno de los pocos usos obligatorios
+	de dicho delimitador.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none, caption=Declaración de variables agrupadas,
+label=declvaragrup]
+var (
+	i int;
+	j = 365.245;
+	k int = 0;
+	l, k uint64 = 1, 2;
+	entero, real, cadena = 1, 2.0, "Hola"
+)
+\end{lstlisting}
+\end{minipage}
+
+	\nota{La última declaración de variables no tiene un ';' dado que
+	no es obligatorio (ni aconsejable) ponerlo en dicha línea, ya que va antes
+	de un carácter ')', tal y como se comentó en el apartado \ref{sintaxis}.}
+
+	Este mismo esquema, no sólo sirve para definir variables, sino que también
+	puede ser usado para definir constantes (\emph{const}) y tipos
+	(\emph{type}).\\
+
+	En las funciones, las declaraciones de la forma:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+var v = valor
+\end{lstlisting}
+\end{minipage}
+
+	pueden ser acortadas a:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none]
+v := valor
+\end{lstlisting}
+\end{minipage}
+
+	Y teniendo las mismas características y tipado fuerte existente. He aquí,
+	otro de los motivos para la inversión del nombre de la variable y el tipo de
+	la misma.\\
+
+	El tipo es aquél que tenga el valor, que para números ideales sería
+	\emph{int}, \emph{float32} o \emph{float64} dependiendo del número utilizado. Este tipo de
+	declaraciones de variables es muy usado y está disponible en muchos sitios,
+	como en las cláusulas de los bucles \emph{for}.
+
+	\subsection{Constantes}
+
+	Las declaraciones de constantes están precedidas por la palabra reservada
+	\emph{const}.\\
+
+	Todas las constantes son inicializadas en tiempo de compilación, lo que
+	significa que todas las declaraciones de constantes deben ser inicializadas
+	con una expresión constante. Además, de forma opcional, pueden tener un tipo
+	especificado de forma explícita.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none,caption=Declaración de constantes,
+label=declconst]
+const Pi = 22./7.
+const AccuratePi float64 = 355./113
+const pepe, dos, comida = "Pepe", 2, "carne"
+
+const (
+	Lunes, Martes, Miercoles = 1, 2, 3;
+	Jueves, Viernes, Sabado = 4, 5, 6
+)
+\end{lstlisting}
+\end{minipage}
+
+		\subsubsection{Iota}
+
+		Las declaraciones de constantes pueden usar un contador especial,
+		denominado \emph{iota}, que comienza en 0 en cada bloque declarado con
+		\emph{const} y que se incrementa cada vez que encuenta un caracter
+		punto y coma.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none,caption=Declaración de constantes
+con iota, label=decliota]
+const (
+	Lunes = iota;	// 0
+	Martes = iota;	// 1
+	iercoles = iota // 2
+)
+\end{lstlisting}
+\end{minipage}
+
+		Existe una versión mucho más rápida para el uso del contador especial
+		\emph{iota}, que se basa en que la declaración de una variable pueda
+		seguir un mismo patrón de tipo y expresión. Sería algo así
+		como lo que se puede observar en el siguiente ejemplo:
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none,caption=Declaración de constantes
+con iota - forma corta, label=decliota2]
+const (
+	loc0, bit0 uint32 = iota, 1<<iota;	// 0, 1
+	loc1, bit1;							// 1, 2
+	loc2, bit2                          // 2, 4
+)
+\end{lstlisting}
+\end{minipage}
+
+	\subsection{Tipos}
+
+	El programador es libre de definir nuevos tipos a lo largo de su programa.
+	Para declarar un nuevo tipo, se debe poner la palabra reservada \emph{type}.\\
+
+	Más adelante, dedicaremos todo el capítulo \ref{datos_compuestos} a hablar sobre los distintos
+	tipos de datos compuestos que el usuario puede crear, por lo que un simple
+	ejemplo nos dará una idea de cómo se realiza la declaración de tipos.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none,caption=Declaración de nuevos
+tipos,label=declnuevostipos]
+type Punto struct {
+	x, y, z			float64
+	identificador 	string
+}
+\end{lstlisting}
+\end{minipage}
+
+	\subsection{Operador new vs. función make\label{newvsmake}}
+
+	En Go existe un operador \emph{new()} que básicamente reserva memoria para
+	una variable. La sintaxis, es igual que la llamada a una función, con el
+	tipo deseado como argumento, de igual forma que en lenguajes como C++.\\
+
+	El operador \emph{new()} devuelve un puntero al objeto que se ha creado en
+	memoria. Hay que notar, que a diferencia de otros lenguajes, Go no posee un
+	\emph{delete} o un \textit{free} asociado, ya que para eso está el Garbage
+	Collector, del que se habló en la sección \ref{Garbage Collector}.
+
+\begin{minipage}{17.1cm}
+\begin{lstlisting}[language=go,numbers=none,caption=Ejemplo del operador
+new(),label=opnew]
+var p *Punto = new(Punto)
+v := new(int)				// v tiene como tipo *int
+\end{lstlisting}
+\end{minipage}
+
+	Existe a su vez, una función llamada \emph{make} que se usará generalmente
+	en tres tipos de datos concretos: maps, slices y channels. Normalmente en
+	estos tipos queremos que los cambios hechos en una variable no afecten al
+	resto, y por lo tanto nos aseguraremos que al crear este tipo de datos, se
+	creen nuevas variables y no punteros a las mismas.\\
+
+	Así pues para crear variables de tipos de datos complejos usaremos
+	\emph{make} para los tipos anteriormente mencionados, que nos devolverá
+	una estructura creada, o \emph{new} si usamos otros tipos de datos, ya que
+	nos devolverá un puntero a dicha estructura.
+

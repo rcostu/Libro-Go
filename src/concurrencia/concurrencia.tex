@@ -1,0 +1,482 @@
+
+\chapter{Concurrencia y comunicación}
+
+A medida que la informática avanza, se va haciendo más necesario el uso de
+elementos de comunicación y concurrencia. La comunicación es algo necesario para
+no formar parte de un sistema aislado, y así poder comunicar nuestro programa
+con otros programas, que puede que estén o no en nuestra misma máquina.\\
+
+La concurrencia, por otra parte, nos permite evitar situaciones indeseadas
+y realizar programación paralela, haciendo que el aprovechamiento de los
+recursos sea mucho más eficaz. Go es un lenguaje creado con dos fines: uno de
+ellos es la simplicidad, y el otro es su eminente enfoque para sistemas
+concurrentes.
+
+\section{Goroutines}
+
+	\subsection{Definición}
+	
+	Podríamos definir de manera formal una Goroutine como: \\
+
+	\textit{''Una función de Go que permite ejecutar otra función de manera
+	paralela al programa y en el mismo espacio de direcciones que realiza la
+	llamada a la Goroutine.''}\\
+
+	Todos los programas en Go constan de una o varias Goroutines.\\
+
+	Aunque pueda llevar a confusión, una Goroutine no es lo mismo que un thread,
+	un proceso, etc. Una Goroutine es una Goroutine.\\
+
+	Evidentemente, y aunque pueda parecer un sistema perfecto, tiene sus
+	problemas de concurrencia asociados que se irán viendo más adelante. Por
+	ahora asumamos que funciona tal y como se ha dicho.  \clearpage
+	\subsection{Cómo crear una Goroutine}
+	
+	Crear una Goroutine es quizá lo más sencillo que haya. Basta con invocar una
+	función anteponiéndole la palabra reservada \textit{go}:
+	
+	\begin{verbatim} func IsReady (what strgin, minutes int64) { time.Sleep
+	(minutes * 60 * 1e9) fmt.Println (what, "está listo") }
+	   
+		go IsReady ("té", 6) go IsReady ("café", 2) fmt.Println ("Estoy
+		esperando...") \end{verbatim}
+	
+	El ejemplo anterior imprimiría:
+	
+	\begin{verbatim} Estoy esperando...   (de forma inmediata) café está listo
+	(2 minutos después) té está listo        (6 minutos después) \end{verbatim}
+	
+	\subsection{Verdades de las Goroutines}
+	
+	Las Goroutines son baratas, es decir, son muy fáciles de programar y de
+	invocar.\\
+	
+	Las Goroutines terminan su ejecución retornando de su función superior,
+	o simplemente saliendo en algún punto intermedio del programa puesto a tal
+	propósito. También pueden llamar a \textit{runtime.Goexit()}, aunque es
+	raramente necesario.\\
+	
+	Las Goroutines pueden ejecutarse concurrentemente en diferentes procesadores
+	con memoria compartida. Asimismo no hay por qué preocuparse del tamaño de la
+	pila a la hora de invocarlas.
+	
+	\subsection{Pila de una Goroutine}
+	
+	En \textit{gccgo}, al menos por ahora, las goroutines se compilan como si
+	fueran pthreads. Sus pilas son grandes. Se pretende cambiar esto en un
+	futuro próximo pero no se ha realizado todavía ya que necesitan realizarse
+	cambios en el propio \textit{gcc}.\\
+	
+	Usando el compilador \textit{6g}, las pilas son pequeñas (unos pocos kB)
+	pero crecen a medida que sea necesario. De esta forma, las goroutines usan
+	muy poca memoria pero si es necesario pueden de forma dinámica hacer crecer
+	la pila para invocar a muchas más funciones.\\
+	
+	Esto se ha diseñado y programado así para que el programador no tenga que
+	preocuparse sobre el límite de la pila y la tarea le resulte mucho más
+	cómoda.
+	
+	\subsection{Scheduling}
+	
+	Las goroutines están multiplexadas entre múltiples threads del sistema.
+	Cuando una goroutine ejecuta una llamada bloqueante al sistema, el resto de
+	goroutines no se bloquean y continúan su ejecución.\\
+	
+	Se pretende realizar este mismo efecto para las goroutines dependientes de
+	la CPU, pero por ahora si se quiere un paralelismo a nivel de usuario se
+	necesita dar un valor a la variable de entorno \textit{\$GOMAXPROCS}, o se
+	puede llamar en un programa a \textit{runtime.GOMAXPROCS(n)}.\\
+	
+	\textit{GOMAXPROCS} le dice al planificador en tiempo de ejecución cuántas
+	goroutines que no sean bloqueantes por llamadas al sistema, pueden correr
+	a la vez. Esto implica, que para hacer una prueba real de paralelismo,
+	necesitaremos adecuar el valor de \textit{\$GOMAXPROCS} al número de
+	goroutines que tenga nuestro programa.\\
+	
+	¿Cómo se puede dar un valor a dicha variable? Sencillo. En un terminal del
+	sistema basta con poner las siguientes líneas:
+	
+	\begin{verbatim} $ GOMAXPROCS=4 $ export GOMAXPROCS \end{verbatim}
+
+\section{Channels\label{channels}}
+
+A menos que dos goroutines puedan comunicarse, éstas no pueden coordinarse
+o sincronizarse de ninguna forma. Por ello Go tiene un tipo denominado
+\textit{channel} que provee comunicación y sincronización. También posee de
+estructuras de control especiales para los canales que hacen fácil la
+programación concurrente.
+
+	\subsection{El tipo channel}
+	
+	En su forma más simple el tipo se declara como:
+	
+	\begin{verbatim} chan tipo_elemento \end{verbatim}
+	
+	Dada una variable de ese estilo, puedes enviar y recibir elementos del tipo
+	\textit{tipo\textunderscore elemento}.\\
+	
+	Los canales son un tipo de referencia, lo que implica que se pude asignar
+	una variable \textit{chan} a otra y que ambas variables accedan al mismo
+	canal. Esto también hace referencia a que hay que usar \textit{make} para
+	alojar un canal:
+	
+	\begin{verbatim} var c = make (chan int) \end{verbatim} \clearpage
+	\subsection{El operador $<-$}
+	
+	El operador $<-$ (más comúnmente conocido como ''flechita'') es un operador
+	que nos permite pasar datos a los canales. La flecha apunta en la dirección
+	en que se pretende que sea el flujo de datos.\\
+	
+	Como operador binario, $<-$ envía a un canal:
+	
+	\begin{verbatim} var c chan int c <- 1      // envía 1 al canal
+	c \end{verbatim}
+	
+	Como un operador unario prefijo, $<-$ recibe datos de un canal:
+	
+	\begin{verbatim} v = <- c    // Recibe un valor de c y se lo asigna a v.  <-
+	c        // Recibe un valor de c, descartándolo i := <- c   // Recibe un
+	valor de c inicializando i \end{verbatim}
+	
+	\subsection{Semántica de canales}
+	
+	Por defecto la comunicación en Go se realiza de forma síncrona. Más tarde
+	abordaremos la comunicacion asíncrona. Que la comunicación sea síncrona
+	significa:
+	
+	\begin{enumerate} \item Una operación send en un canal bloquea la ejecución
+	hasta que se ejecuta una operación receive en el mismo canal.  \item Una
+	operación receive en un canal bloquea la ejecución hasta que una operación
+	send es ejecutada en el mismo canal.  \end{enumerate}
+	
+	De esta forma, la comunicación es además una forma de sincronización:
+	2 goroutines intercambiando datos a través de un canal, se sincronizan en el
+	momento en que la comunicación es efectiva.
+	
+	\subsection{Ejemplo de comunicación}
+	
+	Veamos un ejemplo bastante tonto de comunicación pero que servirá como toma
+	de contacto con la sintaxis de los canales:
+	
+	\begin{verbatim} func pump (ch chan int) { for i := 0; ; i++ { ch <- i } }
+	   
+		ch1 := make (chan int) go pump (ch1)       // pump se bloquea;
+		ejecutamos: fmt.Println (<-ch1)     // Imprime 0
+	   
+	   
+		func suck (ch chan int) { for { fmt.Println (<-ch) } }
+	   
+		go suck (ch1)    // Miles de números se imprimen
+	   
+		// Todavía se puede colar la función principal y pedir un valor
+		fmt.Println(<-ch)    // Imprime un valor cualquiera (314159)
+		\end{verbatim}
+	
+	\subsection{Funciones que devuelven canales}
+	
+	En el ejemplo anterior, \textit{pump} era una función generadora de valores
+	para ser recogidos por otra función. El ejemplo anterior se puede
+	simplificar bastante en el momento en el que se cree una función que pueda
+	devolver el canal en sí para que se puedan recoger los datos.
+	
+	\begin{verbatim} func pump() chan int { ch := make (chan int) go func()
+	{ for i := 0; ; i++ { ch <- i } }() return ch }
+	   
+		stream := pump() fmt.Println(<-stream)   // Imprime 0 \end{verbatim}
+	
+	\subsection{Rangos y canales}
+	
+	La claúsula \textit{range} en bucles \textit{for} acepta un canal como
+	operando, en cuyo caso el bucle \textit{for} itera sobre los valores
+	recibidos por el canal.\\
+	
+	Anteriormente reescribimos la función pump(), con lo que ahora reescribimos
+	la función \textit{suck} para que lance la goroutine también:
+	
+	\begin{verbatim} func suck (ch chan int) { go func() { for v:= range ch
+	{ fmt.Println(v) } }() }
+	   
+		suck (pump())   // Ahora esta llamada no se bloquea \end{verbatim}
+	
+	\subsection{Cerrando un canal}
+	
+	Cuando queremos cerrar un canal por alguna razón usamos una función del
+	lenguaje que nos permite realizar dicha acción.
+	
+	\begin{verbatim} close (ch) \end{verbatim}
+	
+	De igual forma, existe otra función que nos permite comprobar si un canal
+	está cerrado o no, usando la función \textit{closed()}:
+	
+	\begin{verbatim} if closed (ch) { fmt.Println ("hecho") } \end{verbatim}
+	
+	Una vez que un canal está cerrado y que todos los valores enviados han sido
+	recibidos, todas las operaciones receive que se realicen a continuación
+	recuperarán un valor ''cero'' del canal.\\
+	
+	En la práctica, raramente se necesitará \textit{close}.\\
+	
+	Hay ciertas sutilezas respecto al cierre de un canal. La llamada
+	a \textit{closed()} sólo funciona correctamente cuando se invoca después de
+	haber recibido un valor ''cero'' en el canal. El bucle correcto para
+	recorrer los datos de un canal y comprobar si se ha cerrado es:
+	
+	\begin{verbatim} for { v := <-ch if closed (ch) { break } fmt.Println (v)
+	} \end{verbatim}
+	
+	Pero de una forma mucho más idiomática y simple, podemos usar la cláusula
+	\textit{range} que realiza esa misma acción por nosotros:
+	
+	\begin{verbatim} for v := range ch { fmt.Println (v) } \end{verbatim}
+	
+	\subsection{Iteradores}
+	
+	Ahora que tenemos todas las piezas necesarias podemos construir un iterador
+	para un contenedor. Aquí está el código para un \textit{Vector}: \clearpage
+	\begin{verbatim} // Iteramos sobre todos los elementos
+	   
+		func (p *Vector) iterate (c chan Element) { for i, v := range p.a {   //
+		p.a es un slice c <- v } close (c)     // Señala que no hay más valores
+		}
+	   
+		// Iterador del canal
+	   
+		func (p *Vector) Iter() chan Element { c := make (chan Element) go
+		p.iterate (c) return c } \end{verbatim}
+	
+	Ahora que el \textit{Vector} tiene un iterador, podemos usarlo:
+	
+	\begin{verbatim} vec := new (vector.Vector) for i := 0 i < 100; i++
+	{ vec.Push (i*i) }
+	   
+		i:= 0 for x := range vec.Iter() { fmt.Printf ("vec[\%d] is \%d\n", i,
+		x.(int)) i++ } \end{verbatim}
+	
+	\subsection{Direccionalidad de un canal}
+	
+	En su forma más simple una variable de tipo canal es una variable sin
+	memoria (no posee un buffer), síncrona y que puede ser utilizada para enviar
+	y recibir.\\
+	
+	Una variable de tipo canal puede ser anotada para especificar que únicamente
+	puede enviar o recibir:
+	
+	\begin{verbatim} var recv_only <-chan int var send_only chan <- int
+	\end{verbatim}
+	
+	Todos los canales son creados de forma bidireccional, pero podemos
+	asignarlos a variables de canales direccionales. Esto es útil por ejemplo en
+	las funciones, para tener seguridad en los tipos de los parámetros pasados:
+	
+	\begin{verbatim}
+	
+	
+		func sink (ch <- chan int) { for { <- ch } }
+	   
+		func source (ch chan<- int) { for { ch <- 1 } }
+	   
+		var c = make (chan) int)  //bidireccional go source (c) go sink (c)
+		\end{verbatim}
+	
+	\subsection{Canales síncronos}
+	
+	Los canales síncronos no disponen de un buffer. Las operaciones send no
+	terminan hasta que un receive es ejecutado. Veamos un ejemplo de un canal
+	síncrono:
+	
+	\begin{verbatim} c := make (chan int) go func () { time.Sleep (60 * 1e9)
+	x := <- c fmt.Println ("recibido", x) }()
+	   
+		fmt.Println ("enviando", 10) c <- 10 fmt.Println ("enviado", 10)
+		\end{verbatim}
+	
+	Salida:
+	
+	\begin{verbatim} enviando 10  (ocurre inmediatamente) enviado 10   (60s
+	después, estas dos lineas aparecen) recibido 10 \end{verbatim}
+
+	\subsection{Canales asíncronos}
+	
+	Un canal asíncrono con buffer puede ser creado pasando a \textit{make} un
+	argumento, que será el número de elementos que tendrá el buffer.
+	
+	\begin{verbatim} c := make (chan int, 50) go func () { time.Sleep (60 * 1e9)
+	x := <-c fmt.Println ("recibido", x) }()
+	   
+	   
+		fmt.Println ("enviando", 10) c <- 10 fmt.Println ("enviado", 10)
+		\end{verbatim}
+	
+	\begin{verbatim} enviando 10  (ocurre inmediatamente) enviado 10   (ahora)
+	recibido 10   (60s después) \end{verbatim}
+	
+	\textbf{Nota.-} El buffer no forma parte del tipo canal, sino que es parte
+	de la variable de tipo canal que se crea.
+	
+	\subsection{Probando la comunicación}
+	
+	Si nos preguntamos si un receive puede en un momento determinado ejecutar
+	sin quedarse bloqueado, existe un método que permite hacerlo de forma
+	atómica, probando y ejecutando, utilizando para tal efecto el sistema ''coma
+	ok''.
+	
+	\begin{verbatim} v, ok = <-c   // ok = true si v recibe un valor
+	\end{verbatim}
+	
+	¿Y qué hay de realizar una operación send sin bloquear? Hace falta
+	averiguarlo y ejecutar. Para ello usamos una expresión booleana:
+	
+	\begin{verbatim} ok := c <- v
+	   
+		o también:
+	   
+		if c <- v { fmt.Println ("valor enviado") } \end{verbatim}
+	
+	Normalmente, se quiere una mayor flexibilidad, que conseguiremos con la
+	siguiente estructura que veremos en el uso de canales.
+
+\section{Select}
+
+	\subsection{Definición}
+	
+	\textit{Select} es una estructura de control en Go, análoga a un switch
+	asociado a comunicación. En un \textit{select} cada case debe ser una
+	comunicación: send o receive.
+	
+	\begin{verbatim} var c1, c2 chan int
+	   
+		select { case v := <- c1: fmt.Printf ("recibido \%d de c1\n", v) case
+		v := <- c2: fmt.Printf ("recibido \%d de c2\n", v) } \end{verbatim}
+	
+	\textit{Select} ejecuta un case que pueda ejecutarse de forma aleatoria. Si
+	ninguno de los case es posible de ejecutar, se bloquea hasta que uno lo sea.
+	Una cláusula \textit{default} es siempre ejecutable.
+	
+	\subsection{Semántica de select}
+	
+	Hagamos un rápido resumen del select:
+	
+	\begin{itemize} \item Cada case debe ser una comunicación \item Todas las
+	expresiones del canal son evaluadas \item Todas las expresiones para ser
+	enviadas son evaluadas \item Si alguna comunicación puede producirse, se
+	produce; En otro caso se ignora.  \begin{itemize} \item Si existe una
+	cláusula \textit{default}, es ésta la que ejecuta \item Si no existe
+	\textit{default}, el bloque select se bloquea hasta que una comunicación
+	pueda realizarse; no hay reevaluación de los canales y/o posibles valores.
+	\end{itemize} \item Si hay múltiples casos listos, uno es seleccionado
+	aleatoriamente. El resto no ejecuta.  \end{itemize}
+	
+	\subsection{Ejemplo: Generador aleatorio de bits}
+	
+	Un ejemplo bastante ilustrativo es el siguiente:
+	
+	\begin{verbatim} c := make (chan int) go func() { for { fmt.Println (<-c)
+	} }()
+	   
+		for { select { case c <- 0:   // No hay sentencias, no existe el
+		fall-through case c <- 1: } } \end{verbatim}
+	
+	Esto imprime: 0 1 1 0 0 1 1 1 0 1 ...
+
+\section{Multiplexación}
+
+Los canales son valores de ''primer tipo'', es decir, pueden ser enviados
+a través de otros canales. Esta propiedad hace que sea fácil de escribir un
+servicio multiplexador dado que el cliente puede proporcionar, junto con la
+petición, el canal al que debe responder.
+
+\begin{verbatim} chanOfChans := make (chan chan int) \end{verbatim} \clearpage
+O de forma más típica:
+
+\begin{verbatim} type Reply struct { ... } type Request struct { arg1, arg2,
+arg3 some_type replyc chan *Reply } \end{verbatim}
+
+Vamos a ver un ejemplo cliente-servidor a lo largo de los siguientes puntos.
+
+	\subsection{El servidor}
+	
+	\begin{verbatim} type request struct { a, b int replyc chan int }
+	   
+		type binOp func (a, b int) int
+	   
+		func run (op binOp, req *request) { req.replyc <- op(req.a, req.b) }
+	   
+		func server (op binOp, service chan *request) { for { req := <- service
+		// Aquí se aceptan las peticiones go run(op, req) } } \end{verbatim}
+	
+	Para comenzar el servidor lo hacemos de la siguiente forma:
+	
+	\begin{verbatim} func startServer (op binOp) chan *request { req := make
+	(chan *request) go server (op, req) return req }
+	   
+		var adderChan = startServer( func a, b int) int { return a + b })
+		\end{verbatim} \clearpage \subsection{El cliente}
+	
+	\begin{verbatim} func (r *request) String() string { return fmt.Sprintf
+	("\%d+\%d=\%d", r.a, r.b, <-r.replyc) } req1 := &request{ 7, 8, make (chan
+	int) } req2 := &request{ 17, 18, make (chan int) }
+	   
+		adderChan <- req1 adderChan <- req2
+	   
+		fmt.Println (req2, req1) \end{verbatim}
+	
+	\subsection{La contrapartida}
+	
+	En el ejemplo anterior el servidor ejecuta en un bucle infinito, con lo que
+	siempre está esperando peticiones. Para terminarlo de manera correcta, se le
+	puede señalar con un canal. El siguiente servidor tiene la misma
+	funcionalidad pero con un canal \textit{quit} para terminar el proceso.
+	
+	\begin{verbatim} func server (op binOp, service chan *request, quit chan
+	bool) { for { select{ case req := <- service:  // Aquí se aceptan las
+	peticiones go run(op, req) case <- quit: return } } } \end{verbatim}
+	
+	El resto del código es básicamente el mismo, sólo que con un canal más:
+	
+	\begin{verbatim} func startServer (op binOp) (service chan *request, quit
+	chan bool) { req := make (chan *request) quit = make (chan bool) go server
+	(op, service, quit) return service, quit }
+	   
+		var adderChan, quitChan = startServer( func a, b int) int { return
+		a + b }) \end{verbatim}
+	
+	El cliente permanece inalterado ya que puede terminar el servidor cuando
+	quiera con sólo ejecutar la sentencia:
+	
+	\begin{verbatim} quitChan <- true \end{verbatim}
+
+\section{Problemas de concurrencia}
+
+Como siempre que se programa de forma concurrente existen un montón de problemas
+pero Go trata de hacerse cargo de ellos.\\
+
+El envío y la recepción (operaciones send y receive) son atómicas. La sentencia
+\textit{select} está programada y definida muy cuidadosamente para que no
+contenga errores.\\
+
+El problema viene principalmente dado porque las goroutines ejecutan en memoria
+compartida, las redes de comunicacción pueden colapsarse, que no existen
+debuggers multihilo...\\
+
+El consejo por parte de los desarrolladores del lenguaje es no programar como si
+estuviéramos en C o C++, o incluso Java.\\
+
+Los canales dan sincronización y comunicación en una misma estructura, lo cual
+los hace muy potentes, pero también hacen que sea fácil razonar si se están
+usando de manera correcta o no.\\
+
+La regla es:\\
+
+\textit{``No comunicar programas con memoria compartida, sino compartir memoria
+comunicándose''}\\
+
+El modelo básico a la hora de programar utilizando la filosofía cliente-servidor
+se resume en dos conceptos:
+
+\begin{enumerate} \item Usar un canal para enviar datos a una goroutine dedicada
+como servidor, ya que si una única goroutine en cada instante tiene un puntero
+a los datos, no hay problemas de concurrencia.  \item Usar el modelo de
+programación ``un hilo por cliente'' de forma generalizada, usado desde la
+década de los 80 y que funciona bastante bien.  \end{enumerate}
+
+\clearpage \thispagestyle{empty} \ \\ \newpage

@@ -1,0 +1,10 @@
+.DS_Store
+*.toc
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.lof
+*.lol
+*.lot
+src/Libro\ Go.pdf
